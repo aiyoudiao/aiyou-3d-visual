@@ -83,12 +83,15 @@
         /* 给当前场景添加一个立方体*/
         scene.add(cube)
         scene.add(fatherCube)
+
+        /* 创建一个轨道控制器 */
         const controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 
         /* 给相机的 z轴设置距离为 5，这样立方体就不会贴的立方体那么近 */
         // camera.position.z = 5
         camera.position.set(0, 0, 5)
+        /*更新轨道控制器*/
         controls.update();
 
 
@@ -103,6 +106,7 @@
             boxEntity.rotation.y += 0.01
             boxEntity.rotation.z += 0.01
 
+            /* 渲染之前更新轨道控制器 */
             controls.update();
             renderer.render(scene, camera)
 
