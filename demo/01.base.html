@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>three.js基础</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r122/three.js"></script>
+    <!-- 一个官网的3D 旋转的3D立方体的demo -->
+</head>
+<body>
+    
+
+    <script>
+        /* 初始化一个场景 */
+        const scene = new THREE.Scene()
+
+
+        /* 初始化一个相机，我用的是一个透视相机 perspective，还有一个正交相机，暂时不用 orthographic */
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000) /* 角度，长宽比，近景，远景 */
+
+        /* 初始化一个webgl的渲染器，设置渲染的区域，将渲染器的dom添加到body中 */
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        document.body.appendChild(renderer.domElement)
+
+        /* 创建几何 和 材料，将它们放入到一个网格中，生成一个立方体 */
+        const geometry = new THREE.BoxGeometry()
+        const material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+        const cube = new THREE.Mesh(geometry, material)
+
+        /* 给当前场景添加一个立方体*/
+        scene.add(cube)
+        /* 给相机的 z轴设置距离为 5，这样立方体就不会贴的立方体那么近 */
+        // camera.position.z = 5
+        camera.position.set(0, 0, 5)
+
+        /* 创建一个动画， 没一帧都让立方体旋转，x轴和y轴都 +0.1，更新场景和相机 */
+        const animate = function () {
+            requestAnimationFrame( animate )
+            cube.rotation.x += 0.01
+            cube.rotation.y += 0.01
+
+            renderer.render(scene, camera)
+        }
+
+        animate()
+
+    </script>
+</body>
+</html>
