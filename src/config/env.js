@@ -7,7 +7,7 @@
  * routerMode: 路由模式
  * imgBaseUrl: 图片所在域名地址
  * welUrl :默认欢迎页
- * 
+ *
  */
 
 let baseUrl = ''

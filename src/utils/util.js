@@ -2,7 +2,6 @@
  * 动态插入css
  */
 
-
 export const loadStyle = url => {
   const link = document.createElement('link')
   link.type = 'text/css'
@@ -16,19 +15,16 @@ export const loadStyle = url => {
  * 设置浏览器头部标题
  */
 
-
-export const setTitle = function (title) {
+export const setTitle = function(title) {
   title = title ? `${title}` : 'aiyou-3d-visual'
-  window.document.title = title + '-aiyou-3d-visual'
+  window.document.title = title + '[aiyoudiao]'
 }
-
 
 /**
  *  生成浏览器头部的标题
  */
 
-
-export const getPageTitle = function (pageTitle) {
+export const getPageTitle = function(pageTitle) {
   const title = document.title
   if (pageTitle) {
     return `${pageTitle} - ${title}`

@@ -8,8 +8,7 @@ import {
   getPageTitle
 } from '@/utils/util' // 设置浏览器头部标题
 
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   NProgress.start()
 
   // 设置浏览器头部标题
@@ -17,6 +16,9 @@ router.beforeEach(async (to, from, next) => {
   store.commit('user/SET_BROWSERHEADERTITLE', {
     browserHeaderTitle: browserHeaderTitle
   })
+
+  next()
+
   NProgress.done()
 })
 
@@ -24,11 +26,11 @@ router.beforeEach(async (to, from, next) => {
  * 在路由跳转结束，设置文档的title
  */
 
-
 router.afterEach(() => {
   NProgress.done() // 结束Progress
   setTimeout(() => {
     const browserHeaderTitle = store.getters.browserHeaderTitle
+    console.log('browserHeaderTitle', browserHeaderTitle)
     setTitle(browserHeaderTitle)
   }, 0)
 })

@@ -4,6 +4,6 @@ const getters = {
   lockPasswd: state => state.user.lockPasswd,
   isFullScren: state => state.common.isFullScren,
   browserHeaderTitle: state => state.user.browserHeaderTitle,
-  errorLogs: state => state.errorLog.logs,
+  errorLogs: state => state.errorLog.logs
 }
 export default getters

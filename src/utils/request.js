@@ -10,9 +10,7 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(config => {
-
   config.headers['X-Token'] = 'token' // 让每个请求携带自定义token 请根据实际情况自行修改
-
 
   return config
 }, error => {
@@ -30,7 +28,6 @@ service.interceptors.request.use(config => {
 // respone拦截器
 service.interceptors.response.use(
   response => {
-
     /**
     * code为非20000是抛错 可结合自己业务进行修改
     */

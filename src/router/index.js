@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import MachineRoom from '@/views/MachineRoom/MachineRoom'
 
 // const _import = require('./_import_' + process.env.NODE_ENV)
 // in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
@@ -20,20 +21,28 @@ Vue.use(Router)
   }
 **/
 export const constantRouterMap = [
-  // {
-  //   path: '/',
-  //   component: Layout,
-  //   redirect: '/login',
-  //   name: 'login',
-  //   hidden: true
-  // },
-  // {
-  //   path: '',
-  //   component: Layout,
-  //   redirect: '/dashboard/dashboard'
-  // },
-  { path: '/404', component: () => import('@/views/errorPage/404'), hidden: true },
-  { path: '/401', component: () => import('@/views/errorPage/401'), hidden: true },
+
+  {
+    path: '',
+    redirect: '/machine-room'
+  },
+  {
+    path: '/',
+    redirect: '/machine-room',
+    name: 'home',
+    hidden: false
+  },
+  {
+    path: '/machine-room',
+    component: MachineRoom,
+    name: 'MachineRoom',
+    meta: {
+      title: '3D可视化机房'
+    },
+    hidden: false
+  },
+  { path: '/404', component: () => import('@/views/errorPage/404'), hidden: false },
+  { path: '/401', component: () => import('@/views/errorPage/401'), hidden: false },
   {
     path: '/errorLog',
     component: () => import('@/views/errorLog/errorLog'),

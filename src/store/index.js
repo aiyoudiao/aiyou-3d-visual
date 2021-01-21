@@ -8,7 +8,6 @@ import errorLog from '@/store/modules/errorLog'
 
 import VuexPersistence from 'vuex-persist'
 
-
 Vue.use(Vuex)
 
 // const vuexLocal = new VuexPersistence({
@@ -16,15 +15,14 @@ Vue.use(Vuex)
 //   modules: ['user']
 // })
 
-
 const store = new Vuex.Store({
   modules: {
     user,
     common,
     fullScreen,
-    errorLog,
+    errorLog
   },
-  getters,
+  getters
   // plugins: [vuexLocal.plugin]
 })
 
