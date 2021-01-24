@@ -830,22 +830,22 @@ export default class ThreeHandle {
             }
 
             let cube = this.__generateCube(cubeObj)
-            const { childrens } = wallObj
+            // const { childrens } = wallObj
             // let close = false
-            if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
-                childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
-                    // if (close) {
-                    //     return
-                    // }
+            // if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
+            //     childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
+            //         if (close) {
+            //             return
+            //         }
 
-                    const { op } = wallChildren
-                    const newObj = this.__generateHole(wallChildren)
-                    cube = this.__mergeModel(op, cube, newObj, commonSkin)
-                    // if (wallChildren.name === 'doorhole') {
-                    //     close = true
-                    // }
-                });
-            }
+            //         const { op } = wallChildren
+            //         const newObj = this.__generateHole(wallChildren)
+            //         cube = this.__mergeModel(op, cube, newObj, commonSkin)
+            //         // if (wallChildren.name === 'doorhole') {
+            //         //     close = true
+            //         // }
+            //     });
+            // }
 
             this.__addObject(cube, 'scene')
         });

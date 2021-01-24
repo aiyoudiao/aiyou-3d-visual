@@ -834,9 +834,9 @@ export default class ThreeHandle {
             // let close = false
             if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
                 childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
-                    // if (close) {
-                    //     return
-                    // }
+                    if (close) {
+                        return
+                    }
 
                     const { op } = wallChildren
                     const newObj = this.__generateHole(wallChildren)

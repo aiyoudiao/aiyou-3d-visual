@@ -832,20 +832,20 @@ export default class ThreeHandle {
             let cube = this.__generateCube(cubeObj)
             const { childrens } = wallObj
             // let close = false
-            if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
-                childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
-                    // if (close) {
-                    //     return
-                    // }
+            // if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
+            //     childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
+            //         if (close) {
+            //             return
+            //         }
 
-                    const { op } = wallChildren
-                    const newObj = this.__generateHole(wallChildren)
-                    cube = this.__mergeModel(op, cube, newObj, commonSkin)
-                    // if (wallChildren.name === 'doorhole') {
-                    //     close = true
-                    // }
-                });
-            }
+            //         const { op } = wallChildren
+            //         const newObj = this.__generateHole(wallChildren)
+            //         cube = this.__mergeModel(op, cube, newObj, commonSkin)
+            //         // if (wallChildren.name === 'doorhole') {
+            //         //     close = true
+            //         // }
+            //     });
+            // }
 
             this.__addObject(cube, 'scene')
         });
@@ -1020,7 +1020,6 @@ export default class ThreeHandle {
         return cube
     }
 
-
     /**
      * @Description 生成一个立方体
      * @date 2021-01-22
@@ -1050,15 +1049,14 @@ export default class ThreeHandle {
             }
         })
 
-        const default_obj = {
-            vertexColors: THREE.FaceColors
-        }
         /* 上、下、前、后、左、右 */
-        let [skin_up_obj, skin_down_obj, skin_fore_obj, skin_behind_obj, skin_left_obj, skin_right_obj] = Array(6).fill(default_obj)
+        let [skin_up_obj, skin_down_obj, skin_fore_obj, skin_behind_obj, skin_left_obj, skin_right_obj] = Array(6).fill({
+            vertexColors: THREE.FaceColors
+        })
 
 
         let skin_opacity = 1
-        const { skin } = item.style || undefined
+        const { skin } = item.style || {}
 
         /**
          * 根据皮肤属性来生成六个面的皮肤
@@ -1083,17 +1081,17 @@ export default class ThreeHandle {
                 if (![undefined, null, ''].includes(tempItem)) {
                     middleData[index] = tempItem.skinColor || 0xffffff
                 } else {
-                    middleData[index] = skinColor || 0xffffff
+                    middleData[index] = skinColor
                 }
             })
             const [skin_right_handle_end, skin_left_handle_end, skin_up_handle_end, skin_down_handle_end, skin_fore_handle_end, skin_behind_handle_end] = middleData
 
             skin_right_obj = this.__generateSkinOption(depth, height, skin_right, cubeGeometry, skin_right_handle_end, 0)
             skin_left_obj = this.__generateSkinOption(depth, height, skin_left, cubeGeometry, skin_left_handle_end, 2)
-            skin_up_obj = this.__generateSkinOption(width, depth, skin_up, cubeGeometry, skin_up_handle_end, 4)
-            skin_down_obj = this.__generateSkinOption(width, depth, skin_down, cubeGeometry, skin_down_handle_end, 6)
-            skin_fore_obj = this.__generateSkinOption(width, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
-            skin_behind_obj = this.__generateSkinOption(width, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
+            skin_up_obj = this.__generateSkinOption(depth, height, skin_up, cubeGeometry, skin_up_handle_end, 4)
+            skin_down_obj = this.__generateSkinOption(depth, height, skin_down, cubeGeometry, skin_down_handle_end, 6)
+            skin_fore_obj = this.__generateSkinOption(depth, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
+            skin_behind_obj = this.__generateSkinOption(depth, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
         }
 
         /**
@@ -1105,6 +1103,7 @@ export default class ThreeHandle {
         const cubeMaterialArray = []
         /* 顺序是 右 左 上 下 前 后 */
         new Array(skin_right_obj, skin_left_obj, skin_up_obj, skin_down_obj, skin_fore_obj, skin_behind_obj).forEach(tempItem => {
+            tempItem
             cubeMaterialArray.push(new THREE.MeshLambertMaterial(tempItem))
         })
 
@@ -1213,7 +1212,8 @@ export default class ThreeHandle {
             texture.repeat.set(width / imgWidth, height / imgWidth)
         }
 
-        console.log('width / imgWidth, height / imgWidth', width / imgWidth, height / imgWidth)
+        console.log('skin_obj', 'width', 'height', 'imgWidth', 'imgHeight', 'imgurl', 'repeatx', 'repeaty', 'repeat')
+        console.log(skin_obj, width, height, imgWidth, imgHeight, imgurl, repeatx, repeaty, repeat)
 
         return texture
     }

@@ -832,20 +832,20 @@ export default class ThreeHandle {
             let cube = this.__generateCube(cubeObj)
             const { childrens } = wallObj
             // let close = false
-            if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
-                childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
-                    // if (close) {
-                    //     return
-                    // }
+            // if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
+            //     childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
+            //         if (close) {
+            //             return
+            //         }
 
-                    const { op } = wallChildren
-                    const newObj = this.__generateHole(wallChildren)
-                    cube = this.__mergeModel(op, cube, newObj, commonSkin)
-                    // if (wallChildren.name === 'doorhole') {
-                    //     close = true
-                    // }
-                });
-            }
+            //         const { op } = wallChildren
+            //         const newObj = this.__generateHole(wallChildren)
+            //         cube = this.__mergeModel(op, cube, newObj, commonSkin)
+            //         // if (wallChildren.name === 'doorhole') {
+            //         //     close = true
+            //         // }
+            //     });
+            // }
 
             this.__addObject(cube, 'scene')
         });
@@ -1020,7 +1020,6 @@ export default class ThreeHandle {
         return cube
     }
 
-
     /**
      * @Description 生成一个立方体
      * @date 2021-01-22
@@ -1090,10 +1089,10 @@ export default class ThreeHandle {
 
             skin_right_obj = this.__generateSkinOption(depth, height, skin_right, cubeGeometry, skin_right_handle_end, 0)
             skin_left_obj = this.__generateSkinOption(depth, height, skin_left, cubeGeometry, skin_left_handle_end, 2)
-            skin_up_obj = this.__generateSkinOption(width, depth, skin_up, cubeGeometry, skin_up_handle_end, 4)
-            skin_down_obj = this.__generateSkinOption(width, depth, skin_down, cubeGeometry, skin_down_handle_end, 6)
-            skin_fore_obj = this.__generateSkinOption(width, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
-            skin_behind_obj = this.__generateSkinOption(width, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
+            skin_up_obj = this.__generateSkinOption(depth, height, skin_up, cubeGeometry, skin_up_handle_end, 4)
+            skin_down_obj = this.__generateSkinOption(depth, height, skin_down, cubeGeometry, skin_down_handle_end, 6)
+            skin_fore_obj = this.__generateSkinOption(depth, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
+            skin_behind_obj = this.__generateSkinOption(depth, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
         }
 
         /**
@@ -1120,7 +1119,7 @@ export default class ThreeHandle {
         */
 
 
-        this.__handleRotaion(item.rotation, cube)
+        // this.__handleRotaion(item.rotation, cube)
         return cube
     }
 
@@ -1213,7 +1212,8 @@ export default class ThreeHandle {
             texture.repeat.set(width / imgWidth, height / imgWidth)
         }
 
-        console.log('width / imgWidth, height / imgWidth', width / imgWidth, height / imgWidth)
+        console.log('skin_obj', 'width', 'height', 'imgWidth', 'imgHeight', 'imgurl', 'repeatx', 'repeaty', 'repeat')
+        console.log(skin_obj, width, height, imgWidth, imgHeight, imgurl, repeatx, repeaty, repeat)
 
         return texture
     }

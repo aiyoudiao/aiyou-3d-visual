@@ -829,23 +829,25 @@ export default class ThreeHandle {
                 }
             }
 
-            let cube = this.__generateCube(cubeObj)
-            const { childrens } = wallObj
-            // let close = false
-            if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
-                childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
-                    // if (close) {
-                    //     return
-                    // }
+            console.log('cubeObj', cubeObj)
 
-                    const { op } = wallChildren
-                    const newObj = this.__generateHole(wallChildren)
-                    cube = this.__mergeModel(op, cube, newObj, commonSkin)
-                    // if (wallChildren.name === 'doorhole') {
-                    //     close = true
-                    // }
-                });
-            }
+            let cube = this.__generateCube(cubeObj)
+            // const { childrens } = wallObj
+            // let close = false
+            // if (![null, undefined].includes(childrens) && Array.isArray(childrens)) {
+            //     childrens.forEach((wallChildren: { op: any, name: string }, index: any) => {
+            //         if (close) {
+            //             return
+            //         }
+
+            //         const { op } = wallChildren
+            //         const newObj = this.__generateHole(wallChildren)
+            //         cube = this.__mergeModel(op, cube, newObj, commonSkin)
+            //         // if (wallChildren.name === 'doorhole') {
+            //         //     close = true
+            //         // }
+            //     });
+            // }
 
             this.__addObject(cube, 'scene')
         });
@@ -1020,6 +1022,94 @@ export default class ThreeHandle {
         return cube
     }
 
+    __generateCube (obj) {
+        var width = obj.width || 1000;  //x轴
+        var height = obj.height || 10;  //y轴
+        var depth=obj.depth || width;  //z轴
+        var x = obj.x || 0, y = obj.y || 0, z = obj.z || 0;
+        var skinColor = obj.style.hasOwnProperty('skinColor')?obj.style.skinColor : "";
+        //width：是x方向上的长度；height：是y方向上的长度；depth：是z方向上的长度；
+        var cubeGeometry = new THREE.BoxGeometry(width, height, depth);
+
+        //六面颜色
+        for (var i = 0; i < cubeGeometry.faces.length; i += 2) {
+            cubeGeometry.faces[i].color.setHex(skinColor);
+            cubeGeometry.faces[i + 1].color.setHex(skinColor);
+        }
+        //六面纹理
+        var skin_up_obj = {
+            vertexColors: THREE.FaceColors
+        }
+        var skin_down_obj = skin_up_obj,
+            skin_fore_obj = skin_up_obj,
+            skin_behind_obj = skin_up_obj,
+            skin_left_obj = skin_up_obj,
+            skin_right_obj = skin_up_obj;
+        var skin_opacity = 1;
+        if (obj.style != null && typeof (obj.style) != 'undefined'
+            && obj.style.skin != null && typeof (obj.style.skin) != 'undefined') {
+            //透明度
+            if (obj.style.skin.opacity != null && typeof (obj.style.skin.opacity) != 'undefined') {
+                skin_opacity = obj.style.skin.opacity;
+            }
+            let skin_right=obj.style.skin.hasOwnProperty("skin_right")&&obj.style.skin.skin_right.hasOwnProperty('skinColor')?obj.style.skin.skin_right.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            let skin_left=obj.style.skin.hasOwnProperty("skin_left")&&obj.style.skin.skin_left.hasOwnProperty('skinColor')?obj.style.skin.skin_left.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            let skin_up=obj.style.skin.hasOwnProperty("skin_up")&&obj.style.skin.skin_up.hasOwnProperty('skinColor')?obj.style.skin.skin_up.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            let skin_down=obj.style.skin.hasOwnProperty("skin_down")&&obj.style.skin.skin_down.hasOwnProperty('skinColor')?obj.style.skin.skin_down.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            let skin_fore=obj.style.skin.hasOwnProperty("skin_fore")&&obj.style.skin.skin_fore.hasOwnProperty('skinColor')?obj.style.skin.skin_fore.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            let skin_behind=obj.style.skin.hasOwnProperty("skin_behind")&&obj.style.skin.skin_behind.hasOwnProperty('skinColor')?obj.style.skin.skin_behind.skinColor:obj.style.skin.hasOwnProperty("skinColor")?obj.style.skin.skinColor:"";
+            
+            //右
+            skin_right_obj = this.__generateSkinOption(depth, height, obj.style.skin.skin_right, cubeGeometry,skin_right, 0);
+            //左
+            skin_left_obj = this.__generateSkinOption(depth, height, obj.style.skin.skin_left, cubeGeometry,skin_left, 2);
+            //上
+            skin_up_obj = this.__generateSkinOption(width, depth, obj.style.skin.skin_up, cubeGeometry,skin_up, 4);
+            //下
+            skin_down_obj = this.__generateSkinOption(width, depth, obj.style.skin.skin_down, cubeGeometry,skin_down, 6);
+            //前
+            skin_fore_obj = this.__generateSkinOption(width, height, obj.style.skin.skin_fore, cubeGeometry,skin_fore, 8);
+            //后
+            skin_behind_obj = this.__generateSkinOption(width, height, obj.style.skin.skin_behind, cubeGeometry,skin_behind, 10);
+        }
+        var cubeMaterialArray = [];//右，左，上，下，前，后
+        //右：134、364；左：570、720；上：451、501；下：762、632；前：021、231；后：465、675；
+        //正面：上左上右下左下右(0123)；后面正对看：上左上右下左下右(4567)
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_right_obj));
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_left_obj));
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_up_obj));
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_down_obj));
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_fore_obj));
+        cubeMaterialArray.push(new THREE.MeshLambertMaterial(skin_behind_obj));
+        
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterialArray);
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+        cube.uuid = obj.uuid;
+        cube.name = obj.name;
+        cube.position.set(x, y, z);
+        if (obj.rotation != null && typeof (obj.rotation) != 'undefined' && obj.rotation.length > 0) {
+            obj.rotation.forEach(function(rotation_obj, index){
+                // rotation: [{ direction: 'x', degree: 0.5*Math.PI }], 
+                switch (rotation_obj.direction) {
+                    case 'x':
+                        cube.rotateX(rotation_obj.degree);
+                        break;
+                    case 'y':
+                        cube.rotateY(rotation_obj.degree);
+                        break;
+                    case 'z':
+                        cube.rotateZ(rotation_obj.degree);
+                        break;
+                    case 'arb':  //{ direction: 'arb', degree: [x,y,z,angle] }  x,y,z是向量0,1,0 表示y轴旋转
+                        cube.rotateOnAxis(new THREE.Vector3(rotation_obj.degree[0], rotation_obj.degree[1], rotation_obj.degree[2]), rotation_obj.degree[3]);
+                        break;
+                }
+            });
+        }
+        return cube;
+    }
+
 
     /**
      * @Description 生成一个立方体
@@ -1029,7 +1119,7 @@ export default class ThreeHandle {
      */
 
 
-    __generateCube(item: { width?: any; height?: any; depth?: any; rotation?: any; x?: any; y?: any; z?: any; uuid?: any; name?: any; style?: any; objType?: any }): any {
+    __generateCube2(item: { width?: any; height?: any; depth?: any; rotation?: any; x?: any; y?: any; z?: any; uuid?: any; name?: any; style?: any; objType?: any }): any {
 
         const { width = 1000, height = 10, depth = width /* x、y、z 轴上的长度*/ } = item
         const { x = 0, y = 0, z = 0 } = item
@@ -1090,10 +1180,10 @@ export default class ThreeHandle {
 
             skin_right_obj = this.__generateSkinOption(depth, height, skin_right, cubeGeometry, skin_right_handle_end, 0)
             skin_left_obj = this.__generateSkinOption(depth, height, skin_left, cubeGeometry, skin_left_handle_end, 2)
-            skin_up_obj = this.__generateSkinOption(width, depth, skin_up, cubeGeometry, skin_up_handle_end, 4)
-            skin_down_obj = this.__generateSkinOption(width, depth, skin_down, cubeGeometry, skin_down_handle_end, 6)
-            skin_fore_obj = this.__generateSkinOption(width, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
-            skin_behind_obj = this.__generateSkinOption(width, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
+            skin_up_obj = this.__generateSkinOption(depth, height, skin_up, cubeGeometry, skin_up_handle_end, 4)
+            skin_down_obj = this.__generateSkinOption(depth, height, skin_down, cubeGeometry, skin_down_handle_end, 6)
+            skin_fore_obj = this.__generateSkinOption(depth, height, skin_fore, cubeGeometry, skin_fore_handle_end, 8)
+            skin_behind_obj = this.__generateSkinOption(depth, height, skin_behind, cubeGeometry, skin_behind_handle_end, 10)
         }
 
         /**
@@ -1213,7 +1303,8 @@ export default class ThreeHandle {
             texture.repeat.set(width / imgWidth, height / imgWidth)
         }
 
-        console.log('width / imgWidth, height / imgWidth', width / imgWidth, height / imgWidth)
+        console.log('skin_obj', 'width', 'height', 'imgWidth', 'imgHeight', 'imgurl', 'repeatx', 'repeaty', 'repeat')
+        console.log(skin_obj, width, height, imgWidth, imgHeight, imgurl, repeatx, repeaty, repeat)
 
         return texture
     }
