@@ -72,6 +72,7 @@
     "three-csg-ts": "^2.0.1",
     "three-js-csg": "^72.0.0",
     "three-orbit-controls": "^82.1.0",
+    "three-outlinepass": "^1.0.8",
     "threebsp": "^1.0.4",
     "timeline-vuejs": "^1.1.7",
     "tween.js": "^16.6.0",
