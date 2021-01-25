@@ -236,9 +236,9 @@ export default class ThreeHandle {
         light2.castShadow = true
         this.scene.add(light2)
 
-        //点光源辅助线
-        const plightHelper = new THREE.PointLightHelper(light2, 500); // 50 is helper size
-        this.scene.add(plightHelper);
+        // //点光源辅助线
+        // var plightHelper = new THREE.PointLightHelper(light2, 500); // 50 is helper size
+        // this.scene.add(plightHelper);
     }
 
     /**

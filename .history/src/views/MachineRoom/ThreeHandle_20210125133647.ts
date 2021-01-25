@@ -221,9 +221,9 @@ export default class ThreeHandle {
          *  light2: 点光源
          */
 
-        const light = new THREE.DirectionalLight(0x555555, 1.0);
-        light.position.set(1000, 1000, 200);
-        this.scene.add(light);
+        // const light = new THREE.DirectionalLight(0xFF0000, 1.0);
+        // light.position.set(100, 100, 200);
+        // this.scene.add(light);
 
         const light1 = new THREE.AmbientLight(0xcccccc)
         light1.position.set(0, 0, 0)
@@ -236,9 +236,9 @@ export default class ThreeHandle {
         light2.castShadow = true
         this.scene.add(light2)
 
-        //点光源辅助线
-        const plightHelper = new THREE.PointLightHelper(light2, 500); // 50 is helper size
-        this.scene.add(plightHelper);
+        // //点光源辅助线
+        // var plightHelper = new THREE.PointLightHelper(light2, 500); // 50 is helper size
+        // this.scene.add(plightHelper);
     }
 
     /**
