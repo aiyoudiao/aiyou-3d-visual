@@ -1,4 +1,0 @@
-
-interface Window {
-    ThreeBSP: any
-}

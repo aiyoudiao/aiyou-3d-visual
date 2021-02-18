@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import MachineRoom from '@/views/MachineRoom/MachineRoom'
+import DataCenter from '@/views/DataCenter/DataCenter'
+import Cabinet3D from '@/views/Cabinet3D/Cabinet3D'
 
 // const _import = require('./_import_' + process.env.NODE_ENV)
 // in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
@@ -24,11 +26,11 @@ export const constantRouterMap = [
 
   {
     path: '',
-    redirect: '/machine-room'
+    redirect: '/cabinet3d'
   },
   {
     path: '/',
-    redirect: '/machine-room',
+    redirect: '/cabinet3d',
     name: 'home',
     hidden: false
   },
@@ -38,6 +40,24 @@ export const constantRouterMap = [
     name: 'MachineRoom',
     meta: {
       title: '3D可视化机房'
+    },
+    hidden: false
+  },
+  {
+    path: '/cabinet3d',
+    component: Cabinet3D,
+    name: 'Cabinet3D',
+    meta: {
+      title: '机房3D可视化首页'
+    },
+    hidden: false
+  },
+  {
+    path: '/datacenter',
+    component: DataCenter,
+    name: 'DataCenter',
+    meta: {
+      title: '3D数据中心'
     },
     hidden: false
   },

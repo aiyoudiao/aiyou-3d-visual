@@ -47,23 +47,24 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    proxy: {
-      // 把key的路径代理到target位置
-      // detail: https://cli.vuejs.org/config/#devserver-proxy
-      [process.env.VUE_APP_BASE_API]: { // 需要代理的路径   例如 '/api'
-        target: `http://127.0.0.1:8889/`, // 代理到 目标路径
-        changeOrigin: true,
-        pathRewrite: { // 修改路径数据
-          // ['^' + process.env.VUE_APP_BASE_API]: '/api' // 举例 '^/api:""' 把路径中的/api字符串删除
-        }
-      }
-    }
+    // proxy: {
+    //   // 把key的路径代理到target位置
+    //   // detail: https://cli.vuejs.org/config/#devserver-proxy
+    //   [process.env.VUE_APP_BASE_API]: { // 需要代理的路径   例如 '/api'
+    //     target: `http://127.0.0.1:8889/`, // 代理到 目标路径
+    //     changeOrigin: true,
+    //     pathRewrite: { // 修改路径数据
+    //       // ['^' + process.env.VUE_APP_BASE_API]: '/api' // 举例 '^/api:""' 把路径中的/api字符串删除
+    //     }
+    //   }
+    // }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.
     name: name,
     resolve: {
+      extensions: [".ts", ".tsx", ".js", ".json"],
       alias: {
         '@': resolve('src')
       }
@@ -115,9 +116,9 @@ module.exports = {
       // 1.目前已经测试通过[vue,axios,echarts]可以cdn引用，其它组件测试通过后可继续添加
       // 2.此处添加不打包后，需在public/index.html head中添加相应cdn资源链接
       config.set('externals', {
-        vue: 'Vue',
-        axios: 'axios',
-        echarts: 'echarts'
+        // vue: 'Vue',
+        // axios: 'axios',
+        // echarts: 'echarts'
       })
       // 不打包 end
 
@@ -126,7 +127,7 @@ module.exports = {
         .after('html')
         .use('script-ext-html-webpack-plugin', [{
           // `runtime` must same as runtimeChunk name. default is `runtime`
-          inline: /runtime\..*\.js$/
+          // inline: /runtime\..*\.js$/
         }])
         .end()
       config.optimization.splitChunks({
@@ -142,6 +143,11 @@ module.exports = {
             name: 'chunk-elementUI', // split elementUI into a single package
             priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
             test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+          },
+          three: {
+            name: 'chunk-three', // split elementUI into a single package
+            priority: 25, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+            test: /[\\/]node_modules[\\/]_?three(.*)/ // in order to adapt to cnpm
           },
           commons: {
             name: 'chunk-commons',
@@ -161,7 +167,8 @@ module.exports = {
     // 开启 CSS source maps?
     sourceMap: false,
     // 启用 CSS modules for all css / pre-processor files.
-    modules: false,
+    // modules: false,
+    // requireModuleExtension: true,
     loaderOptions: {
       css: {
         // 这里的选项会传递给 css-loader
