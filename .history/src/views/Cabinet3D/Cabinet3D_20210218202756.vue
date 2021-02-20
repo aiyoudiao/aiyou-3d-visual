@@ -36,7 +36,6 @@
       :select-value="selectValue"
       :contentColumn="contentColumn"
       :contentList="contentList"
-      :total="total"
       @handlePageSizeChange="handlePageSizeChange"
       @handlePageNumberChange="handlePageNumberChange"
     />
@@ -71,7 +70,6 @@ export default {
       ],
       contentList: [],
       contentColumn: [],
-      total: 0
     };
   },
   methods: {
@@ -148,7 +146,6 @@ export default {
       // debugger;
       this.contentColumn = columnZhKeys;
       this.contentList = contentList;
-      this.total = total
     },
   },
   async created() {

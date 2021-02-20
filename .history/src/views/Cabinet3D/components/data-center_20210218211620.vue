@@ -42,20 +42,15 @@ export default {
 
   methods: {
     handleRowClick(row, event, column) {
-
+      debugger
       let info = ''
       Object.values(row).forEach((item, index) => {
-        info += this.columnData[index]
+        info += columnData[index]
         info += '：'
         info += item
         info += '\r\n'     
       })
-
-      
       alert(info)
-
-      const router = this.$router.resolve({name: 'DataCenter'})
-      window.open(router.href, '_blank')
 
       console.log(row)
     },

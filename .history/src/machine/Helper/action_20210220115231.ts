@@ -128,7 +128,7 @@ export function flyToCabinet(targetObj, openDoor) {
         selectedCabinetDoor.openDoor++
 
         openCabinetDoor(selectedCabinetDoor, () => {
-            // console.log('跳转成功')
+            console.log('跳转成功')
         })
     }
 

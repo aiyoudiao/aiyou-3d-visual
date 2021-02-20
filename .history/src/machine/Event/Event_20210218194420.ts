@@ -28,7 +28,7 @@ export class EventHandler1 {
      */
     receive (eventType, eventCallback) {
         if (!eventTypes.includes(eventType)) {
-            // console.warn('事件必须在' + eventTypes + '之内。');
+            console.warn('事件必须在' + eventTypes + '之内。');
             return
         }
 

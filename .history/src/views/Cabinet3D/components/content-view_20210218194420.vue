@@ -2,12 +2,12 @@
   <div class="content-view">
     <!-- 图标应用墙 -->
     <template v-if="selectValue === 'machine-room'">
-      <machine-room-table :column-data="contentColumnData" :table-data="contentData" />
+      <machine-room-table :column-data="columnData" :table-data="contentData" />
     </template>
 
     <!-- 列表应用墙 -->
     <template v-if="selectValue === 'data-center'">
-      <data-center-table :column-data="contentColumnData" :table-data="contentData" />
+      <data-center-table :column-data="columnData" :table-data="contentData" />
     </template>
 
     <!-- 分页条 -->
@@ -18,7 +18,7 @@
       :current-page="pageNumber"
       :page-sizes="[36, 72, 108, 216]"
       :page-size="pageSize"
-      :total="total"
+      :total="216"
       @size-change="handlePageSizeChange"
       @current-change="handlePageNumberChange"
     />
@@ -37,9 +37,7 @@ export default {
   props: {
     selectValue: String,
 
-    contentColumn: Array,
-    contentList: Array,
-    total: Number
+    contentList: Array
   },
   computed: {
     contentData () {
@@ -48,13 +46,6 @@ export default {
       }
 
       return this.contentList
-    },
-    contentColumnData () {
-      if ([null, undefined].includes(this.contentColumn) || this.contentColumn.length < 1) {
-        return this.columnData
-      }
-
-      return this.contentColumn
     }
   },
   data() {

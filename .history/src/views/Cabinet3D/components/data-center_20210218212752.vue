@@ -54,7 +54,7 @@ export default {
       
       alert(info)
 
-      const router = this.$router.resolve({name: 'DataCenter'})
+      const router = this.$router.resolve({name: 'MachineRoom'})
       window.open(router.href, '_blank')
 
       console.log(row)

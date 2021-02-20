@@ -34,9 +34,7 @@
     </div>
     <content-view
       :select-value="selectValue"
-      :contentColumn="contentColumn"
       :contentList="contentList"
-      :total="total"
       @handlePageSizeChange="handlePageSizeChange"
       @handlePageNumberChange="handlePageNumberChange"
     />
@@ -70,8 +68,8 @@ export default {
         },
       ],
       contentList: [],
-      contentColumn: [],
-      total: 0
+      machineRoomColumn: [""],
+      dataCenterColumn: [],
     };
   },
   methods: {
@@ -102,53 +100,26 @@ export default {
         clearTimeout(this.timer);
       }
 
+      // return {
+      //   code: 0,
+      //   message: 'OK',
+      //   data: {
+      //     columns: [],
+      //     rows: [],
+      //     total: 100,
+      //     pageNumber: 2,
+      //     pageSize: 20
+      //   }
+      // }
+
       this.timer = setTimeout(async () => {
-        const result = await getList(
+        const data = await getList(
           this.searchValue,
           this.pageSize,
           this.pageNumber
         );
-
-        this.handleRequestList(result);
-      }, 500);
-    },
-
-    handleRequestList(result) {
-      const { code, data, message } = result;
-      if (!data) {
-        alert("handleRequestList: ERROR");
-      }
-
-      const { columns, pageNumber, pageSize, rows, total } = data;
-      const { columnEnKeys, columnZhKeys } = columns.reduce(
-        (prev, current) => {
-          prev.columnEnKeys.push(current.name);
-          prev.columnZhKeys.push(current.label);
-
-          return prev;
-        },
-        {
-          columnEnKeys: [],
-          columnZhKeys: [],
-        }
-      );
-
-      const contentList = rows.reduce((prev, current, index) => {
-
-        let tempEntity = {}
-        columnEnKeys.forEach((columnEnKey, columnIndex) => {
-              const columnZhKey = columnZhKeys[columnIndex];
-              tempEntity[columnZhKey] = current[columnEnKey]
-        });
-
-        prev.push(tempEntity);
-        return prev;
-      }, []);
-
-      // debugger;
-      this.contentColumn = columnZhKeys;
-      this.contentList = contentList;
-      this.total = total
+        console.log("data", data);
+      }, 3000);
     },
   },
   async created() {
@@ -158,8 +129,6 @@ export default {
       this.pageSize,
       this.pageNumber
     );
-
-    this.handleRequestList(data);
     console.log("data", data);
   },
 };

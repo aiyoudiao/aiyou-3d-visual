@@ -51,11 +51,8 @@ export default {
         info += '\r\n'     
       })
 
-      
+      console.log(this.$router)
       alert(info)
-
-      const router = this.$router.resolve({name: 'DataCenter'})
-      window.open(router.href, '_blank')
 
       console.log(row)
     },

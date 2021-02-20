@@ -377,7 +377,7 @@ export default class Cabinet {
             /* 单门 */
             const { skins: doorSkins, doorname, rotation = null } = item.doors
             if (doorSkins.length === 1 && doorname.length === 1) {
-                // console.log('doorname', doorname[0], doorname, item)
+                console.log('doorname', doorname[0], doorname, item)
                 const doorObj = {
                     ...objModel,
                     name: item.name + '&&' + doorname[0],

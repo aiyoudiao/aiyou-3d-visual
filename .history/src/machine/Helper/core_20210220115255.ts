@@ -364,7 +364,7 @@ export function getTarget (event) {
         return intersects[0]
     }
 
-    // console.warn('没有获取到任何目标对象', intersects)
+    console.warn('没有获取到任何目标对象', intersects)
 }
 
 export function clearHightBox (targetObj) {

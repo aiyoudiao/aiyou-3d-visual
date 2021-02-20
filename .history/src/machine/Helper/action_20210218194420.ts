@@ -17,14 +17,14 @@ let lastEvent: any = null
 let tipTimer: any = undefined
 
 function openCloseDoor(obj, x, y, z, info) {
-    // console.log(obj)
+    console.log(obj)
     var doorstate = "close";
     var tempobj = null;
     if (obj.doorState != null && typeof (obj.doorState) != 'undefined') {
         doorstate = obj.doorState;
         tempobj = obj.parent;
     } else {
-        // console.log("add parent");
+        console.log("add parent");
         var objparent = obj.parent;
         tempobj = new THREE.Object3D();
         tempobj.position.set(obj.position.x + x, obj.position.y + y, obj.position.z + z);
@@ -96,7 +96,7 @@ function openRightDoor(_obj, func) {
 }
 //开关机柜门
 export function openCabinetDoor(_obj, func) {
-    // console.log('开关机柜门', _obj, func)
+    console.log('开关机柜门', _obj, func)
     func()
     openCloseDoor(_obj, _obj.geometry.parameters.width / 2, 0, _obj.geometry.parameters.depth / 2, "right");
 }
@@ -128,7 +128,7 @@ export function flyToCabinet(targetObj, openDoor) {
         selectedCabinetDoor.openDoor++
 
         openCabinetDoor(selectedCabinetDoor, () => {
-            // console.log('跳转成功')
+            console.log('跳转成功')
         })
     }
 

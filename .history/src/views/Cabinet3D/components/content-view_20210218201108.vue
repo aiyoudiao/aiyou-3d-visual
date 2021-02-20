@@ -18,7 +18,7 @@
       :current-page="pageNumber"
       :page-sizes="[36, 72, 108, 216]"
       :page-size="pageSize"
-      :total="total"
+      :total="216"
       @size-change="handlePageSizeChange"
       @current-change="handlePageNumberChange"
     />
@@ -39,7 +39,6 @@ export default {
 
     contentColumn: Array,
     contentList: Array,
-    total: Number
   },
   computed: {
     contentData () {

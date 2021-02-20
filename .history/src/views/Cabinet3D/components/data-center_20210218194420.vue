@@ -43,21 +43,9 @@ export default {
   methods: {
     handleRowClick(row, event, column) {
 
-      let info = ''
-      Object.values(row).forEach((item, index) => {
-        info += this.columnData[index]
-        info += '：'
-        info += item
-        info += '\r\n'     
-      })
-
-      
-      alert(info)
-
-      const router = this.$router.resolve({name: 'DataCenter'})
-      window.open(router.href, '_blank')
-
-      console.log(row)
+      const { 应用系统等级, 应用系统名称, 是否完成可视化, 创建时间, 创建人 } = row
+      console.log(应用系统等级, 应用系统名称, 是否完成可视化, 创建时间, 创建人)
+      alert(应用系统等级 + ',  ' + 应用系统名称 + ',  ' + 是否完成可视化 + ',  ' + 创建时间 + ',  ' + 创建人)
     },
     tableRowClassName({ row, rowIndex }) {
       // if (rowIndex % 3 === 0 && rowIndex % 5 !== 0) {

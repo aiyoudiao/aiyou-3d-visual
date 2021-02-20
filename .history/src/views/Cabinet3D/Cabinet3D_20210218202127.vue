@@ -36,7 +36,6 @@
       :select-value="selectValue"
       :contentColumn="contentColumn"
       :contentList="contentList"
-      :total="total"
       @handlePageSizeChange="handlePageSizeChange"
       @handlePageNumberChange="handlePageNumberChange"
     />
@@ -71,7 +70,6 @@ export default {
       ],
       contentList: [],
       contentColumn: [],
-      total: 0
     };
   },
   methods: {
@@ -110,7 +108,7 @@ export default {
         );
 
         this.handleRequestList(result);
-      }, 500);
+      }, 3000);
     },
 
     handleRequestList(result) {
@@ -132,23 +130,21 @@ export default {
           columnZhKeys: [],
         }
       );
-
+      
       const contentList = rows.reduce((prev, current, index) => {
+        const columnEnKey = columnEnKeys[index];
+        const columnZhKey = columnZhKeys[index];
 
-        let tempEntity = {}
-        columnEnKeys.forEach((columnEnKey, columnIndex) => {
-              const columnZhKey = columnZhKeys[columnIndex];
-              tempEntity[columnZhKey] = current[columnEnKey]
+        prev.push({
+          [columnZhKey]: current[columnEnKey],
         });
 
-        prev.push(tempEntity);
         return prev;
       }, []);
 
-      // debugger;
+      debugger;
       this.contentColumn = columnZhKeys;
       this.contentList = contentList;
-      this.total = total
     },
   },
   async created() {

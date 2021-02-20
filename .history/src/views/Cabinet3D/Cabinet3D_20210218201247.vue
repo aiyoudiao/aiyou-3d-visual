@@ -34,9 +34,8 @@
     </div>
     <content-view
       :select-value="selectValue"
-      :contentColumn="contentColumn"
+      :contentColumn = "contentColumn"
       :contentList="contentList"
-      :total="total"
       @handlePageSizeChange="handlePageSizeChange"
       @handlePageNumberChange="handlePageNumberChange"
     />
@@ -71,7 +70,6 @@ export default {
       ],
       contentList: [],
       contentColumn: [],
-      total: 0
     };
   },
   methods: {
@@ -103,53 +101,41 @@ export default {
       }
 
       this.timer = setTimeout(async () => {
-        const result = await getList(
+        const result  = await getList(
           this.searchValue,
           this.pageSize,
           this.pageNumber
         );
 
-        this.handleRequestList(result);
-      }, 500);
+        this.handleRequestList(result)
+      }, 3000);
     },
 
-    handleRequestList(result) {
-      const { code, data, message } = result;
-      if (!data) {
-        alert("handleRequestList: ERROR");
-      }
-
-      const { columns, pageNumber, pageSize, rows, total } = data;
-      const { columnEnKeys, columnZhKeys } = columns.reduce(
-        (prev, current) => {
-          prev.columnEnKeys.push(current.name);
-          prev.columnZhKeys.push(current.label);
-
-          return prev;
-        },
-        {
-          columnEnKeys: [],
-          columnZhKeys: [],
+    handleRequestList (result) {
+        const { code, data, message } = result
+        if (!data) {
+          alert('handleRequestList: ERROR')
         }
-      );
 
-      const contentList = rows.reduce((prev, current, index) => {
+        const { columns, pageNumber, pageSize, rows, total } = data
+        const columnEnKeys = Object.keys(columns)
+        const columnZhKeys = Object.values(columns)
 
-        let tempEntity = {}
-        columnEnKeys.forEach((columnEnKey, columnIndex) => {
-              const columnZhKey = columnZhKeys[columnIndex];
-              tempEntity[columnZhKey] = current[columnEnKey]
-        });
+        this.contentColumn = columnZhKeys
+        this.contentList = this.rows.reduce((prev, current, index) => {
 
-        prev.push(tempEntity);
-        return prev;
-      }, []);
+          const columnEnKey = columnEnKeys[index]
+          const columnZhKey = columnZhKeys[index]
 
-      // debugger;
-      this.contentColumn = columnZhKeys;
-      this.contentList = contentList;
-      this.total = total
-    },
+          prev.push({
+            [columnZhKey]: current[columnEnKey]
+          })
+
+          return prev
+        }, [])
+
+
+    }
   },
   async created() {
     this.resetAppOrList();
@@ -159,7 +145,7 @@ export default {
       this.pageNumber
     );
 
-    this.handleRequestList(data);
+    this.handleRequestList(data)
     console.log("data", data);
   },
 };

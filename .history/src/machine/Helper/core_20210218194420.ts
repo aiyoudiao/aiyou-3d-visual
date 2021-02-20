@@ -109,7 +109,7 @@ export function generateCube (item) {
         //     }
         // })
 
-        // console.log('middleData', middleData)
+        console.log('middleData', middleData)
         const [skin_right_handle_end, skin_left_handle_end, skin_up_handle_end, skin_down_handle_end, skin_fore_handle_end, skin_behind_handle_end] = middleData
 
         skin_right_obj = generateSkinOption(depth, height, skin_right, cubeGeometry, skin_right_handle_end, 0)
@@ -364,7 +364,7 @@ export function getTarget (event) {
         return intersects[0]
     }
 
-    // console.warn('没有获取到任何目标对象', intersects)
+    console.warn('没有获取到任何目标对象', intersects)
 }
 
 export function clearHightBox (targetObj) {
