@@ -95,6 +95,11 @@ export default class ServerDevice {
             vueModel.currentMesh.show = true
             vueModel.currentServerDevice.show = true
             vueModel.currentServerDevice.deviceName = SELECTED.userData.deviceName || SELECTED.name  || '未有数据'
+
+            vueModel.$set(vueModel, 'currentServerDevice', {
+                ...vueModel.currentServerDevice,
+                ...SELECTED.userData
+            })
         }
     }
 

@@ -2,8 +2,8 @@ import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
 
 const List = {
-    'data-center': {columns:[], rows: []},
-    'machine-room': {columns:[], rows: []}
+    'data-center': { columns: [], rows: [] },
+    'machine-room': { columns: [], rows: [] }
 }
 const count = 100
 
@@ -99,7 +99,7 @@ List['machine-room'].rows = Array(count).fill(1).map(item => {
     return Mock.mock({
         id: '@increment',
         type: 'machine-room',
-        machineRoomName: '机房' + Mock.Random.natural(3, 5) + '号' ,
+        machineRoomName: '机房' + Mock.Random.natural(3, 5) + '号',
         dataCenterName: Mock.Random.title(3, 5) + '数据中心',
         cabinetCount: Mock.Random.natural(10, 30),
         serverDeviceCount: Mock.Random.natural(100, 300),
@@ -107,10 +107,143 @@ List['machine-room'].rows = Array(count).fill(1).map(item => {
     })
 })
 
+const cabinetNum = Mock.Random.integer(7, 20)
+const cabinetAndDevice = {
+    cabinets: {
+        title: [{
+            name: 'cabinetID',
+            label: '机柜ID'
+        }, {
+            name: 'cabinetName',
+            label: '机柜名称',
+        }, {
+            name: 'cabinetTotalU',
+            label: '机柜U数',
+        }, {
+            name: 'dataCenterName',
+            label: '所属数据中心名称',
+        }, {
+            name: 'machineRoomName',
+            label: '当前机房名称',
+        }, {
+            name: 'cabinetRate',
+            label: '当前机柜利用率 (已使用的机柜U数 / 总机柜的U数)'
+        }, {
+            name: 'uBitLength',
+            label: '每一U的长度'
+        }],
+        list: Array(cabinetNum).fill(1).map((item, index) => {
+            const i = index + 1
+            return {
+                cabinetID: i,
+                cabinetName: i + '号机柜',
+                cabinetTotalU: Mock.Random.integer(28,60),
+                dataCenterName: Mock.Random.title(1, 3) + '数据中心',
+                machineRoomName: '机房' + Mock.Random.natural(3, 5) + '号',
+                cabinetRate: Mock.Random.float(0, 0, 1,2),
+                uBitLength: 6
+            }
+        }),
+        total: cabinetNum
+    },
+    serverDeviceList: {
+        title: [{
+            name: 'deviceID',
+            label: '设备ID'
+        },
+        {
+            name: 'deviceName',
+            label: '设备名'
+        },
+        {
+            name: 'deviceIP',
+            label: '设备管理ip'
+        },
+        {
+            name: 'deviceState',
+            label: '设备状态'
+        },
+        {
+            name: 'deviceManufacturer',
+            label: '设备厂商'
+        },
+        {
+            name: 'deviceType',
+            label: '设备型号'
+        },
+        {
+            name: 'dataCenterName：',
+            label: '设备所属数据中心'
+        },
+        {
+            name: 'rankName',
+            label: '机架的名称'
+        },
+        {
+            name: 'cabinetID',
+            label: '所属机柜的ID'
+        },
+        {
+            name: 'startU',
+            label: '开始U位'
+        },
+        {
+            name: 'endU',
+            label: '结束U位'
+        }],
+        list: [],
+        total: 100
+    }
+}
+
+cabinetAndDevice.cabinets.list.forEach(cabinet => {
+
+    const cabinetID = cabinet.cabinetID
+    const totalU = cabinet.cabinetTotalU
+    const serverDeviceNum = Mock.Random.integer(3, Math.floor(totalU / 3))
+    const dataCenterName = cabinet.dataCenterName
+    
+    let startU, endU;
+    const serverDeviceList = Array(serverDeviceNum).fill(1).map(() => {
+        startU = startU || Mock.Random.integer(1, 2)
+        endU =  startU + Mock.Random.integer(1, 2)
+
+        const item = {
+            deviceID: Mock.Random.id(),
+            deviceName: Mock.Random.title(1, 3) + '设备',
+            deviceIP: Mock.Random.ip(),
+            deviceState: '正常',
+            deviceManufacturer: Mock.Random.region() + '公司',
+            deviceType: '思科',
+            dataCenterName: dataCenterName,
+            rankName: Mock.Random.integer(1, 10)+'号机架',
+            cabinetID: cabinetID,
+            startU: startU,
+            endU: endU
+        }
+
+        startU = endU  + Mock.Random.integer(0, 2)
+        return item
+    })
+
+    cabinetAndDevice.serverDeviceList.list.push(...serverDeviceList)
+})
+cabinetAndDevice.serverDeviceList.total = cabinetAndDevice.serverDeviceList.list.length
+
+
 export default {
 
+    getDataCenter: config => {
+        return this.getTableList(config)
+    },
+
+
+    getMachineRoom: config => {
+        return this.getTableList(config)
+    },
+
     getTableList: config => {
-        const { input = '', pageNumber = 1, pageSize = 20, type = 'machine-room'} = JSON.parse(config.body)
+        const { input = '', pageNumber = 1, pageSize = 20, type = 'machine-room' } = JSON.parse(config.body)
 
         const start = (pageNumber - 1) * pageSize
         const end = pageNumber * pageSize
@@ -130,6 +263,19 @@ export default {
             }
         }
     },
+
+    getCabinetAndDevice: config => {
+        const { id } = JSON.parse(config.body)
+
+        return {
+            code: 200,
+            message: 'OK',
+            data: {
+                ...cabinetAndDevice
+            }
+        }
+    },
+
     getLis2: config => {
         const { importance, type, title, page = 1, limit = 20, sort } = param2Obj(config.url)
 

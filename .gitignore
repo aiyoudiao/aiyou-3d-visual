@@ -218,3 +218,6 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 tests/**/coverage/
+
+# history
+.history/

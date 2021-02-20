@@ -11,6 +11,7 @@ Mock.setup({
 
 // 机房可视化相关
 Mock.mock(/\/cabinet3d\/getTableList/, 'post', cabinet3dAPI.getTableList)
+Mock.mock(/\/cabinet3d\/getCabinetAndDevice/, 'post', cabinet3dAPI.getCabinetAndDevice)
 // Mock.mock(/\/user\/logout/, 'post', loginAPI.logout)
 // Mock.mock(/\/user\/info\.*/, 'get', loginAPI.getUserInfo)
 

@@ -11,6 +11,17 @@ export function getList(input, pageSize, pageNumber, type) {
   })
 }
 
+export function getCabinetAndDevice(id) {
+  const data = {
+    id
+  }
+  return request({
+    url: '/cabinet3d/getCabinetAndDevice',
+    method: 'post',
+    data: data
+  })
+}
+
 export function removeItem(id) {
   return request({
     url: '/cabinet3d/remove/' + id,

@@ -9,10 +9,7 @@ const uUnit = 6
  * 6. 根据起始U位和结束U位 来计算实际高度
  */
 
-export function getHeightByUnum (num, uUnitLength) {
-    if (uUnitLength) {
-        return num * uUnitLength
-    }
+function getHeightByUnum (num) {
     return num * uUnit
 }
 
@@ -44,7 +41,7 @@ function getHeightByStratUunitAndEndUunit (startU, endU) {
 
 
 
-export let cabinet = {
+let cabinet = {
     show: true,
     name: "cabinet",
     uuid: "",
@@ -138,7 +135,124 @@ export let cabinet = {
                 tipInfo: "设备1信息***",
                 alarmInfo: "",
             },
-        }
+        },
+        {
+            show: true,
+            uuid: "",
+            name: "equipment_server2",
+            objType: "cube",
+            depth: 65,
+            width: 65,
+            height: getHeightByUnum(4),
+            y: getHeightByUnum(4),
+            style: {
+                skin: {
+                    skin_up: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_down: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_fore: {
+                        imgurl: "server2.jpg",
+                    },
+                    skin_behind: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_left: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_right: {
+                        imgurl: "rack_inside.png",
+                    },
+                },
+            },
+            userData: {
+                devid: "01",
+                pointid: "0102",
+                isalarm: false,
+                tipInfo: "设备2信息^^^",
+                alarmInfo: "",
+            },
+        },
+        {
+            show: true,
+            uuid: "",
+            name: "equipment_server3",
+            objType: "cube",
+            depth: 65,
+            width: 65,
+            height: getHeightByUnum(2),
+            y: getHeightByUnum(32),
+            style: {
+                skin: {
+                    skin_up: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_down: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_fore: {
+                        imgurl: "server1.jpg",
+                    },
+                    skin_behind: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_left: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_right: {
+                        imgurl: "rack_inside.png",
+                    },
+                },
+            },
+            userData: {
+                devid: "01",
+                pointid: "0103",
+                isalarm: false,
+                tipInfo: "设备3信息!!!",
+                alarmInfo: "",
+            },
+        },
+        {
+            show: true,
+            uuid: "",
+            name: "equipment_server4",
+            objType: "cube",
+            depth: 65,
+            width: 65,
+            height: getHeightByUnum(4),
+            y: getHeightByUnum(14),
+            style: {
+                skin: {
+                    skin_up: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_down: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_fore: {
+                        imgurl: "server2.jpg",
+                    },
+                    skin_behind: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_left: {
+                        imgurl: "rack_inside.png",
+                    },
+                    skin_right: {
+                        imgurl: "rack_inside.png",
+                    },
+                },
+            },
+            userData: {
+                devid: "01",
+                pointid: "0104",
+                isalarm: false,
+                tipInfo: "设备4信息~~~",
+                alarmInfo: "",
+            },
+        },
     ],
 };
 //复制机柜
@@ -880,7 +994,7 @@ export default {
         },
 
         // 机柜集合
-        // ...cabinets,
+        ...cabinets,
     ],
     "camera": {
         "position": {

@@ -73,6 +73,10 @@ export default class Cabinet {
         vueModel.currentMesh.show = true
         vueModel.currentCabnet.show = true
         vueModel.currentCabnet.name = SELECTED.userData.name
+        vueModel.$set(vueModel, 'currentCabnet', {
+            ...vueModel.currentCabnet,
+            ...SELECTED.userData
+        })
 
         // scene.updateMatrixWorld(true)
     }
@@ -269,19 +273,21 @@ export default class Cabinet {
     }
 
     drawingUbit(item, emptyCabinet) {
-        const { uuid } = item
+        const { uuid, userData: { cabinetTotalU } } = item
         const { thick: sizeThick, width: sizeWidth, height: sizeHeight, depth: sizeDepth } = item.size
 
 
-        const ubitGroup = this.drawingUbitFn(6, 6, 6, 42)
+        const ubitGroup = this.drawingUbitFn(6, 6, 6, cabinetTotalU)
         const [x, y, z] = [
             sizeWidth / 2,
             0,
             sizeDepth / 2 - sizeThick / 2 + 1 + sizeWidth / 2
         ]
-        ubitGroup.position.set(40, -124, 35)
+        ubitGroup.position.set(40, - cabinetTotalU * 6 / 2 + 3, 35)
+        // ubitGroup.position.set(30,  -124, 35)
         const ubitGroup2 = ubitGroup.clone()
-        ubitGroup2.position.set(-40, -124, 35)
+        ubitGroup2.position.set(-40, - cabinetTotalU * 6 / 2 + 3, 35)
+        // ubitGroup2.position.set(-40, -124, 35)
 
 
         emptyCabinet.add(ubitGroup)
@@ -291,9 +297,9 @@ export default class Cabinet {
 
 
         const ubitGroup3 = ubitGroup.clone()
-        ubitGroup3.position.set(40, -124, 2)
+        ubitGroup3.position.set(40, - cabinetTotalU * 6 / 2 + 3, 2)
         const ubitGroup4 = ubitGroup.clone()
-        ubitGroup4.position.set(-40, -124, 2)
+        ubitGroup4.position.set(-40, - cabinetTotalU * 6 / 2 + 3, 2)
         emptyCabinet.add(ubitGroup3)
         emptyCabinet.add(ubitGroup4)
         addObject(ubitGroup3, 'object')
