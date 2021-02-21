@@ -3,10 +3,12 @@
  */
 
 import * as THREE from "three";
-import { getTarget } from "./core";
+import * as TWEENClass from '@tweenjs/tween.js'
+import { addObject, getTarget } from "./core";
 import { camera, domElement, mouseClick, orbitControls, outlinePass, scene, vueModel } from "./initThree";
 import { findTopObj, isClickModel, isExists } from "./util";
 
+export const TWEEN = TWEENClass
 
 let lastElement: any = null
 
@@ -17,10 +19,9 @@ let lastEvent: any = null
 let tipTimer: any = undefined
 
 function openCloseDoor(obj, x, y, z, info) {
-    // console.log(obj)
     var doorstate = "close";
     var tempobj = null;
-    if (obj.doorState != null && typeof (obj.doorState) != 'undefined') {
+    if (isExists(obj.doorState)) {
         doorstate = obj.doorState;
         tempobj = obj.parent;
     } else {
@@ -32,14 +33,14 @@ function openCloseDoor(obj, x, y, z, info) {
         tempobj.add(obj);
         objparent.add(tempobj);
     }
+
     obj.doorState = (doorstate == "close" ? "open" : "close");
+
+
     if (info == "left" || info == "right") {
-        let sign = info == "left" ? 1 : -1;
-        if (obj.doorState == "close") {
-            tempobj.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.5 * sign * Math.PI);
-        } else {
-            tempobj.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.5 * sign * Math.PI);
-        }
+        new TWEEN.Tween(tempobj.rotation).to({
+            y: (doorstate == "close" ? 0.25 * 2 * Math.PI : 0 * 2 * Math.PI)
+        }, 1000).start();
     } else if (info == "outin") {
         //沿点击的法向量移动
         // var intersects = this.raycaster.intersectObjects([obj]);
@@ -121,15 +122,9 @@ export function flyToCabinet(targetObj, openDoor) {
         /**
          * 处于开门状态，那么就先关门再开门
          */
-        if (selectedCabinetDoor.doorState === 'open') {
+        if (selectedCabinetDoor.doorState === 'close' || !isExists(selectedCabinetDoor.doorState)) {
             openCabinetDoor(selectedCabinetDoor, () => { })
         }
-        selectedCabinetDoor.openDoor = selectedCabinetDoor.openDoor ? selectedCabinetDoor.openDoor : 0
-        selectedCabinetDoor.openDoor++
-
-        openCabinetDoor(selectedCabinetDoor, () => {
-            // console.log('跳转成功')
-        })
     }
 
     /**
@@ -137,14 +132,108 @@ export function flyToCabinet(targetObj, openDoor) {
      * 然后再慢慢微调相机的 x轴和y轴距离
      * 最终达到正好看到机柜的位置
      */
-    camera.position.copy(SELECTED.position)
-    camera.position.y = camera.position.y + 60
-    camera.position.x = camera.position.x + 340
+
+    const cameraTarget = {
+        x: camera.position.x,
+        y: camera.position.y,
+        z: camera.position.z,
+    }
+
+    const controlTarget = {
+        x: orbitControls.target.x,
+        y: orbitControls.target.y,
+        z: orbitControls.target.z,
+    }
+
+    const elementTarget = {
+        x: SELECTED.position.x,
+        y: SELECTED.position.y,
+        z: SELECTED.position.z,
+    }
+
+    const target = {
+        x: SELECTED.position.x + 340,
+        y: SELECTED.position.y + 60,
+        z: SELECTED.position.z,
+    }
+
+    // camera.position.x = target.x
+    // camera.position.y = target.y
+    // camera.position.z = target.z
+
+    /**
+     * 让当前相机指向目标位置
+     */
+    new TWEEN.Tween(cameraTarget).to(target)
+        .onUpdate(function (item) {
+            camera.position.x = item.x
+            camera.position.y = item.y
+            camera.position.z = item.z
+        }).start();
+
 
     /**
      * 让当前控制器的目标指向选中的对象
      */
-    orbitControls.target.copy(SELECTED.position)
-    orbitControls.update()
+    new TWEEN.Tween(controlTarget).to(elementTarget)
+        .onUpdate(function (item) {
+            orbitControls.target.x = item.x
+            orbitControls.target.y = item.y
+            orbitControls.target.z = item.z
+            orbitControls.update()
+        }).start();
+    // }).easing(TWEEN.Easing.Elastic.Out).start();
 
+}
+
+
+/**
+ * 添加空间利用率的盒子
+ * @param {*} _objinfo 
+ */
+export function addBox(_objinfo) {
+    var vheight = _objinfo.size.h;
+    if (_objinfo.tween > 0) {
+        vheight = 1;
+    }
+    var geometry = new THREE.BoxGeometry(_objinfo.size.w, vheight, _objinfo.size.l);
+    //var geometry = new THREE.BoxGeometry( 100, 50, 50 );
+    var object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: _objinfo.color, opacity: _objinfo.opacity, transparent: _objinfo.transparent, wireframe: _objinfo.wireframe, shininess: 100 }));
+
+    object.name = _objinfo.name;
+    object.position.set(_objinfo.position.x, _objinfo.position.y, _objinfo.position.z);
+    object.rotation.set(_objinfo.rotation.x, _objinfo.rotation.y, _objinfo.rotation.z);
+    if (true == _objinfo.wireframe) {
+        var bh = new THREE.BoxHelper(object, _objinfo.color);
+        bh.name = _objinfo.name;
+        bh.renderOrder = 100;
+        addObject(bh);
+    } else {
+        object.renderOrder = 100;
+        addObject(object);
+    }
+
+    // var vsize = _objinfo.size;
+    // object.geometry = new THREE.BoxGeometry(vsize.w, vsize.h, vsize.l);
+    // object.position.y =  vsize.h
+
+    if (_objinfo.tween > 0) {
+        var vsize = _objinfo.size;
+        var vtheight = vheight;
+        new TWEEN.Tween({ h: vheight }).to({
+            h: vsize.h
+        }, _objinfo.tween)
+            .onUpdate(function (item) {
+                console.log(item.h);
+                //object.geometry.dispose();
+                //object.children[ 1 ].geometry.dispose();
+                var vtgeometry = new THREE.BoxGeometry(vsize.w, item.h, vsize.l);
+                //object.children[ 0 ].geometry = new THREE.WireframeGeometry( vtgeometry );
+                object.geometry = vtgeometry;
+                var v1 = (item.h - vtheight) / 2.0;
+                object.position.y += v1;
+                vtheight = item.h;
+            }).easing(TWEEN.Easing.Elastic.Out).start();
+    }
+    return object;
 }

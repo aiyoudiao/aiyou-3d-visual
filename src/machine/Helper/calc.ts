@@ -78,7 +78,7 @@ export function mergeModel(mergeOp: any, firstObj: any, secondObj: THREE.Mesh<TH
     }
 
     const result: any = CSG.toMesh(resultObjBSP, firstObj.matrix) // resultObjBSP.toMesh(cubeMaterialArray)
-    result.material.shading = THREE.FlatShading
+    result.material.flatShading = true
     result.geometry.computeFaceNormals()
     result.geometry.computeVertexNormals()
     result.uuid = firstObj.uuid + mergeOp + secondObj.uuid

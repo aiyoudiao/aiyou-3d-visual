@@ -9,14 +9,14 @@ const uUnit = 6
  * 6. 根据起始U位和结束U位 来计算实际高度
  */
 
-export function getHeightByUnum (num, uUnitLength) {
+export function getHeightByUnum(num, uUnitLength) {
     if (uUnitLength) {
         return num * uUnitLength
     }
     return num * uUnit
 }
 
-function calcUnumByHeight (height) {
+function calcUnumByHeight(height) {
     if (height % uUnit) {
         console.warn('当前高度不是单位U的整数倍，请注意调整');
     }
@@ -24,19 +24,19 @@ function calcUnumByHeight (height) {
     return height / uUnit
 }
 
-function getYaxisByStartU (startU) {
+function getYaxisByStartU(startU) {
     return getHeightByUnum(startU)
 }
 
-function getUunitByYaxis (yaxis) {
+function getUunitByYaxis(yaxis) {
     return getHeightByUnum(yaxis)
 }
 
-function getUuintByStartAndEnd (startU, endU) {
+function getUuintByStartAndEnd(startU, endU) {
     return endU - startU
 }
 
-function getHeightByStratUunitAndEndUunit (startU, endU) {
+function getHeightByStratUunitAndEndUunit(startU, endU) {
     const uNum = getUuintByStartAndEnd(startU, endU)
     return getHeightByUnum(uNum)
 }
@@ -49,6 +49,7 @@ export let cabinet = {
     name: "cabinet",
     uuid: "",
     objType: "emptyCabinet",
+    devtype: 'emptyCabinet',
     transparent: false,
     size: { width: 90, depth: 70, height: getHeightByUnum(42) + 4, thick: 2 },
     x: -700,
@@ -92,11 +93,12 @@ export let cabinet = {
                 },
             },
 
-            
+
         ]
     },
     userData: {
         name: "",
+        devtype: 'emptyCabinet',
         alarmInfo: [],
     },
     childrens: [
@@ -105,6 +107,7 @@ export let cabinet = {
             uuid: "",
             name: "equipment_server1",
             objType: "cube",
+            devtype: 'equipment',
             depth: 65,
             width: 65,
             height: getHeightByUnum(2),
@@ -137,6 +140,7 @@ export let cabinet = {
                 isalarm: false,
                 tipInfo: "设备1信息***",
                 alarmInfo: "",
+                devtype: 'equipment',
             },
         }
     ],
@@ -174,6 +178,7 @@ export default {
             uuid: "",
             name: "floor",
             objType: "floor",
+            devtype: 'floor',
             width: 2000,
             depth: 1600,
             height: 10,
@@ -201,6 +206,9 @@ export default {
                     },
                 },
             },
+            userData: {
+                devtype: 'floor',
+            }
         },
         //墙体
         {
@@ -208,9 +216,14 @@ export default {
             uuid: "",
             name: "wall",
             objType: "wall",
+            devtype: "wall",
             depth: 20,
             length: 100,
             height: 240,
+            userData: {
+                devtype: 'wall',
+            }
+            ,
             wallData: [
                 {
                     //wall5
@@ -429,11 +442,15 @@ export default {
             uuid: "",
             name: "wall",
             objType: "wall",
+            devtype: 'wall',
             depth: 20,
             width: 100, //根据实际的宽度来的
             height: 240,
             style: {
                 skinColor: 0xb0cee0,
+            },
+            userData: {
+                devtype: 'wall',
             },
             wallData: [
                 {

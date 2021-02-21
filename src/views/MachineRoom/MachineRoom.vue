@@ -21,6 +21,20 @@
         style="width: 100%; height: 28px"
       />
     </div>
+
+    <div class="btn-group">
+      <el-checkbox-group
+        v-for="(item, index) in eventBtns"
+        v-model="item.content"
+        :key="item.label + '-' + index"
+        :size="item.size"
+        :disabled="item.disabled"
+        @change="handleBtnGroupSelect(item)"
+      >
+        <component :is="item.type" :label="item.label" border></component>
+      </el-checkbox-group>
+    </div>
+
     <div id="label" style="visibility: hidden">
       <div style="position: relative">
         <div
@@ -98,6 +112,8 @@ import PanelBox from "./components/PanelBox";
 import { getCabinetAndDevice } from "@/api/cabinet3d";
 import ops, { cabinet, getHeightByUnum } from "./project";
 
+import { senceReset, showCabinetUsage, showcabinetSpace } from "@/machine/Helper/menuAction";
+
 export default {
   name: "MachineRoom",
   components: {
@@ -105,6 +121,8 @@ export default {
   },
   data() {
     return {
+      eventBtns: [],
+
       machineRoomId: 1,
       timer: undefined,
 
@@ -263,31 +281,28 @@ export default {
       }, 500);
     },
 
-    handleRequestTitle (result) {
-      const { cabinets, serverDeviceList } = result
-      const { title: cabinetTitle } = cabinets
-      const { title: serverDeviceTitle } = serverDeviceList
-
-      
+    handleRequestTitle(result) {
+      const { cabinets, serverDeviceList } = result;
+      const { title: cabinetTitle } = cabinets;
+      const { title: serverDeviceTitle } = serverDeviceList;
 
       const cabinetColumn = cabinetTitle.reduce((prev, item) => {
-        prev[item.label] = item.name
-        return prev
-      }, {})
+        prev[item.label] = item.name;
+        return prev;
+      }, {});
 
       const serverDeviceColumn = serverDeviceTitle.reduce((prev, item) => {
-        prev[item.label] = item.name
-        return prev
-      }, {})
+        prev[item.label] = item.name;
+        return prev;
+      }, {});
 
-      this.$set(this, 'cabinetColumn', {
+      this.$set(this, "cabinetColumn", {
         机号: "name",
-        ...cabinetColumn
-      })
-      this.$set(this, 'serverDeviceColumn', {
-        ...serverDeviceColumn
-      })
-
+        ...cabinetColumn,
+      });
+      this.$set(this, "serverDeviceColumn", {
+        ...serverDeviceColumn,
+      });
     },
 
     handleRequestList(result) {
@@ -329,8 +344,7 @@ export default {
             startU,
             endU,
           } = deviceItem;
-          
-          
+
           if (cabinetID === cID) {
             const temp = {
               cabinetID,
@@ -470,9 +484,77 @@ export default {
 
       return cabinets;
     },
+
+    initMenu() {
+      let menus = [
+        "场景复位",
+        "管道流速管理",
+        "温度监控",
+        "机柜利用率",
+        "空间利用率",
+        "空调风向",
+        "烟雾监测",
+        "漏水监测",
+        "防盗监测",
+        "供电电缆",
+        "告警巡航",
+        "报警管理",
+        "机柜加标识",
+      ];
+      menus = menus
+        .map((item) => {
+          return {
+            label: item,
+            content: [],
+            size: "mini",
+            disabled: false,
+            type: "el-checkbox",
+          };
+        })
+        .map((item) => {
+          // if (["场景复位"].includes(item.label)) {
+          //   item.type = "el-checkbox-button";
+          // }
+
+          return item;
+        });
+
+      this.eventBtns = menus;
+    },
+
+    handleBtnGroupSelect(item) {
+
+      switch (item.label) {
+        case "场景复位":
+          {
+            senceReset();
+            item.content.pop()
+          }
+          break;
+        case "机柜利用率":
+          {
+            debugger
+            const show = item.content.length > 0
+            showCabinetUsage(show)
+          }
+          break;
+        case "空间利用率":
+          {
+            debugger
+            const show = item.content.length > 0
+            showcabinetSpace(show)
+          }
+          break;
+        default:
+          {
+          }
+          break;
+      }
+    },
   },
   watch: {},
-  async mounted() {
+  mounted() {
+    this.initMenu();
   },
 
   async created() {
@@ -491,6 +573,23 @@ body {
 .machine-room {
   width: 100%;
   height: 100%;
+  .btn-group {
+    position: fixed;
+    right: 0px;
+    top: 25px;
+    width: 705px;
+    text-align: left;
+    .el-checkbox-group {
+      display: inline-block;
+      height: 35px;
+      margin: 0px 3px;
+      width: 110px;
+      .el-checkbox{
+        width: 100%;
+        color: #b1dcff;
+      }
+    }
+  }
 }
 
 #three-app-dom {
