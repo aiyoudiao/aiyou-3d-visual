@@ -112,7 +112,21 @@ import PanelBox from "./components/PanelBox";
 import { getCabinetAndDevice } from "@/api/cabinet3d";
 import ops, { cabinet, getHeightByUnum } from "./project";
 
-import { senceReset, showCabinetUsage, showcabinetSpace } from "@/machine/Helper/menuAction";
+import {
+  senceReset,
+  showCabinetUsage,
+  showcabinetSpace,
+  showConnection,
+  showTemperature,
+  showAir,
+  showSmoke,
+  showWater,
+  showSecurity,
+  showPower,
+  showPerson,
+  showAlarm,
+  showFlag,
+} from "@/machine/Helper/menuAction";
 
 export default {
   name: "MachineRoom",
@@ -122,6 +136,9 @@ export default {
   data() {
     return {
       eventBtns: [],
+
+      cabinetList: [],
+      serverDeviceList: [],
 
       machineRoomId: 1,
       timer: undefined,
@@ -387,6 +404,8 @@ export default {
 
         const cabinetTempObj = JSON.parse(JSON.stringify(cabinet));
         cabinets.push(cabinetTempObj);
+        cabinetTempObj.name = 'cabinet' + '_' + cabinetID
+        this.cabinetList.push(cabinetTempObj.name);
 
         /**
          * 1. 处理 cabinet中size的height
@@ -431,6 +450,10 @@ export default {
           temp.height = getHeightByUnum(endU - startU, uBitLength);
           temp.y = getHeightByUnum(startU, uBitLength);
           cabinetTempObj.childrens.push(temp);
+
+          temp.name = "equipment_server_" + deviceID;
+          this.serverDeviceList.push(temp.name);
+
           temp.userData = {
             ...temp.userData,
             cabinetID,
@@ -462,7 +485,7 @@ export default {
 
         for (let j = 0; j < endJ; j++) {
           let obj = data[i * 7 + j];
-          obj.name = "cabinet" + (i + 1) + "_" + (j + 1);
+          // obj.name = "cabinet" + (i + 1) + "_" + (j + 1);
           obj.userData.name = "JG-" + (i + 1) + "-" + (j + 1);
           for (let k = 0; k < obj.childrens.length; k++) {
             obj.childrens[k].userData.devid =
@@ -523,26 +546,83 @@ export default {
     },
 
     handleBtnGroupSelect(item) {
-
       switch (item.label) {
         case "场景复位":
           {
             senceReset();
-            item.content.pop()
+            item.content.pop();
+          }
+          break;
+        case "管道流速管理":
+          {
+            const show = item.content.length > 0;
+            showConnection(show, this.serverDeviceList);
+          }
+          break;
+        case "温度监控":
+          {
+            const show = item.content.length > 0;
+            showTemperature(show);
           }
           break;
         case "机柜利用率":
           {
-            debugger
-            const show = item.content.length > 0
-            showCabinetUsage(show)
+            const show = item.content.length > 0;
+            showCabinetUsage(show);
           }
           break;
         case "空间利用率":
           {
-            debugger
-            const show = item.content.length > 0
-            showcabinetSpace(show)
+            const show = item.content.length > 0;
+            showcabinetSpace(show);
+          }
+          break;
+        case "空调风向":
+          {
+            const show = item.content.length > 0;
+            showAir(show);
+          }
+          break;
+        case "烟雾监测":
+          {
+            const show = item.content.length > 0;
+            showSmoke(show);
+          }
+          break;
+        case "漏水监测":
+          {
+            const show = item.content.length > 0;
+            showWater(show);
+          }
+          break;
+        case "防盗监测":
+          {
+            const show = item.content.length > 0;
+            showSecurity(show);
+          }
+          break;
+        case "供电电缆":
+          {
+            const show = item.content.length > 0;
+            showPower(show);
+          }
+          break;
+        case "告警巡航":
+          {
+            const show = item.content.length > 0;
+            showPerson(show);
+          }
+          break;
+        case "报警管理":
+          {
+            const show = item.content.length > 0;
+            showAlarm(show, this.serverDeviceList);
+          }
+          break;
+        case "机柜加标识":
+          {
+            const show = item.content.length > 0;
+            showFlag(show, this.cabinetList);
           }
           break;
         default:
@@ -584,7 +664,7 @@ body {
       height: 35px;
       margin: 0px 3px;
       width: 110px;
-      .el-checkbox{
+      .el-checkbox {
         width: 100%;
         color: #b1dcff;
       }

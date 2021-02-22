@@ -44,6 +44,28 @@ export function addObject(cube: any, key?: string): any {
     }
 }
 
+
+/**
+ * 删除对象
+ * @param _objname 
+ * @param _deltype 
+ */
+export function delObject(_objname, _deltype) {
+    for (var i = 0; i < dataSet.length; i++) {
+        var _obj = dataSet[i];
+        if (isExists(_obj.name)) {
+            if (_obj.name == _objname) {
+                scene.remove(_obj);
+                dataSet.splice(i, 1);
+                i--;
+                if (false == _deltype)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * 绘制立方体
  */

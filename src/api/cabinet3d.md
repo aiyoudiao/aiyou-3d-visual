@@ -307,7 +307,7 @@
                     deviceState: '正常',
                     deviceManufacturer: '思科公司',
                     deviceType: '思科2021',
-                    dataCenterName：'张江数据中心',
+                    dataCenterName:'张江数据中心',
                     rankName: '2号机架',
                     cabinetID: '6',
                     startU: 20,

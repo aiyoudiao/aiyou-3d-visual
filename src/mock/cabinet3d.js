@@ -255,6 +255,9 @@ export default {
             code: 200,
             message: 'OK',
             data: {
+                requestData: {
+                    input, pageNumber, pageSize, type
+                },
                 columns: columns,
                 rows: rows,
                 total: List[type].rows.length,

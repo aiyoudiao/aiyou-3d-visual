@@ -104,7 +104,7 @@ export function mergeModel(mergeOp: any, firstObj: any, secondObj: THREE.Mesh<TH
         firstObjFace.forEach((firstFaceItem: any, firstFaceIndex: any) => {
             // const {} = resultFaceItem.vertexNormals[0]
             /* resultFaceItem.vertexNormals == firstFaceItem.vertexNormals*/
-            
+
             const faceset = resultFaceItem.vertexNormals.every((subItem: { x: any; y: any; z: any }, subIndex: string | number) => {
                 return subItem.x === firstFaceItem.vertexNormals[subIndex].x &&
                     subItem.y === firstFaceItem.vertexNormals[subIndex].y &&
@@ -215,7 +215,7 @@ export function mergeModel2(mergeOp: any, firstObj: any, secondObj: THREE.Mesh<T
         firstObjFace.forEach((firstFaceItem: any, firstFaceIndex: any) => {
             // const {} = resultFaceItem.vertexNormals[0]
             /* resultFaceItem.vertexNormals == firstFaceItem.vertexNormals*/
-            
+
             const faceset = resultFaceItem.vertexNormals.every((subItem: { x: any; y: any; z: any }, subIndex: string | number) => {
                 return subItem.x === firstFaceItem.vertexNormals[subIndex].x &&
                     subItem.y === firstFaceItem.vertexNormals[subIndex].y &&
@@ -254,4 +254,20 @@ export function mergeModel2(mergeOp: any, firstObj: any, secondObj: THREE.Mesh<T
     result.receiveShadow = true
 
     return result
+}
+
+/**
+ * 弧度转位角度
+ * @param {*} vAngle 
+ */
+export function AngleToRadians(vAngle) {
+    return Math.PI / 180 * vAngle;
+}
+
+/**
+ * 角度转弧度
+ * @param {*} vRadians 
+ */
+export function RadiansToAngle(vRadians) {
+    return 180 / Math.PI * vRadians;
 }

@@ -3,7 +3,7 @@
  */
 
 import * as THREE from 'three'
-import { TWEEN } from './action'
+import { TWEEN, updatePath } from './action'
 
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
@@ -33,6 +33,9 @@ import { onDocumentMouseDown, onDocumentMouseMove } from './events'
 export let BASE_PATH: string
 export let dataSet: Array<any> = []
 export let cabinetSpaceList: Array<any> = []
+export let vLinePathMaterialList: Array<any> = []
+export let nurbsmaterialList: Array<any> = []
+export let makeWaterList: Array<any> = []
 export let eventList: { dbclick: Array<any> }
 let cabinet: Array<any> = []
 let sprite: Array<any> = []
@@ -287,9 +290,13 @@ function render(time?) {
     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
         TWEEN.update(time);
     }
+    
+    updatePath()
 
     const delta = clock.getDelta();
     requestAnimationFrame(render)
+
+
     if (outlinePass.selectedObjects.length) {
         compose.render(delta)
     } else {

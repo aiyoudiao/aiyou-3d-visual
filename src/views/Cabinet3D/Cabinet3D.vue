@@ -106,7 +106,8 @@ export default {
         const result = await getList(
           this.searchValue,
           this.pageSize,
-          this.pageNumber
+          this.pageNumber,
+          this.selectValue
         );
 
         this.handleRequestList(result);
@@ -153,14 +154,7 @@ export default {
   },
   async created() {
     this.resetAppOrList();
-    const data = await getList(
-      this.searchValue,
-      this.pageSize,
-      this.pageNumber
-    );
-
-    this.handleRequestList(data);
-    console.log("data", data);
+    await this.requestList()
   },
 };
 </script>
