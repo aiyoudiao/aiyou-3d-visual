@@ -177,6 +177,7 @@ function initRenderer() {
     outlinePass = new OutlinePass(new THREE.Vector2(domElement.offsetWidth, domElement.offsetHeight), scene, camera);
     outlinePass.renderToScreen = true;
     outlinePass.selectedObjects = selectedObjects;
+
     const params = {
         edgeStrength: 5,
         edgeGlow: 3,
@@ -198,6 +199,8 @@ function initRenderer() {
 
     function createFxaaPass() {
         let FxaaPass:any = new ShaderPass(FXAAShader);
+        // FxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+
         const pixelRatio = renderer.getPixelRatio();
         FxaaPass.material.uniforms["resolution"].value.x =
             1 / (window.innerWidth * pixelRatio);
@@ -287,23 +290,24 @@ function initControl() {
 
 function render(time?) {
 
+    const delta = clock.getDelta();
+
     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
         TWEEN.update(time);
     }
     
     updatePath()
-
-    const delta = clock.getDelta();
-    requestAnimationFrame(render)
-
-
-    if (outlinePass.selectedObjects.length) {
+    if (outlinePass.selectedObjects[0]) {
         compose.render(delta)
     } else {
         renderer.render(scene, camera)
     }
+    // renderer.render(scene, camera)
     orbitControls.update()
+    // stats.update(delta)
     stats.update(delta)
+    
+    requestAnimationFrame(render)
 }
 
 

@@ -62,5 +62,5 @@ export function onDocumentMouseMove(event) {
     let target = getTarget(event)
     hoverTimer = setTimeout(() => {
         listen.broadcasting('hover', target, event)
-    }, 16.8 * 5) // 在5帧内处理鼠标悬浮操作
+    }, 0) // 在5帧内处理鼠标悬浮操作
 }

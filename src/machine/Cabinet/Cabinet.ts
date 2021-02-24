@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import MachineRoom from "../MachineRoom/MachineRoom"
 import ServerDevice from "../ServerDevice/ServerDevice"
-import { mergeModel, handleRotaion } from "../Helper/calc"
+import { mergeModel, handleRotaion, getAreaPageXAndY } from "../Helper/calc"
 import { generateCube, addObject, generateHole, generateGroup, createPlaneGeometry, getTarget, clearHightBox } from '../Helper/core'
 import { findTopObj, generateUUID, isClickModel, isExists } from '../Helper/util'
 import { dataSet, scene, BASE_PATH, alarmColor, orbitControls, camera, vueModel, outlinePass } from '../Helper/initThree'
@@ -68,8 +68,13 @@ export default class Cabinet {
         SELECTED = findTopObj('cabinet', SELECTED)
         outlinePass.selectedObjects = [SELECTED]
 
-        vueModel.currentMesh.left = (event.pageX + 10);
-        vueModel.currentMesh.top = (event.pageY + 10);
+        const width = document.getElementById('tan').offsetWidth
+        const height = document.getElementById('tan').offsetHeight
+        // vueModel.currentMesh.left = (event.pageX + 10);
+        // vueModel.currentMesh.top = (event.pageY + 10);
+        const target = getAreaPageXAndY(event, width + 30, height + 80)
+        vueModel.currentMesh.left = target.x;
+        vueModel.currentMesh.top = target.y;
         vueModel.currentMesh.show = true
         vueModel.currentCabnet.show = true
         vueModel.currentCabnet.name = SELECTED.userData.name

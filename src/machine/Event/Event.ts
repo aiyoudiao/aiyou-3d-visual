@@ -44,6 +44,8 @@ export class EventHandler1 {
      * @param eventType 
      */
     broadcasting (eventType, eventTarget, eventArgs) {
+        // FIX 这里有一个很耗费性能的bug，悬浮的事件太多太多了
+        // console.log('this.eventDictionary[eventType]', this.eventDictionary[eventType])
         if (isExists(this.eventDictionary[eventType])) {
             this.eventDictionary[eventType].forEach(eventCallback => eventCallback(eventTarget, eventArgs))
         }

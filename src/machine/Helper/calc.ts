@@ -271,3 +271,26 @@ export function AngleToRadians(vAngle) {
 export function RadiansToAngle(vRadians) {
     return 180 / Math.PI * vRadians;
 }
+
+/**
+ * 计算悬浮的内容，获取不会越界的x和y
+ */
+export function getAreaPageXAndY (event, width, height) {
+    const { pageX, pageY } = event
+    
+    const domWidth = document.body.offsetWidth
+    const domHeight = document.body.offsetHeight
+
+
+    let x = pageX + 10
+    let y = pageY + 10
+    if ((pageX + width + 10 ) > domWidth) {
+        x = domWidth - width
+    }
+
+    if ((pageY + height + 10 ) > domHeight) {
+        y = domHeight - height
+    }
+
+    return {x, y}
+}
