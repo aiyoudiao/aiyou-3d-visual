@@ -320,3 +320,42 @@
 }
 
 ```
+
+
+### 提交某个机房下的机柜的设备录入信息
+
+
+> POST 
+
+请求参数
+
+```javascript
+{
+	"machineRoomId": 1,
+	"deviceID": "Cisco001",
+	"deviceName": "思科设备",
+	"deviceIP": "127.0.0.1",
+	"deviceState": "正常",
+	"deviceManufacturer": "思科防火墙",
+	"deviceType": "思科001",
+	"dataCenterName": "Vxomh Afbfhsc数据中心",
+	"rankName": "RANK-001",
+	"cabinetID": 13,
+	"cabinetName": "13号机柜",
+	"startU": "42",
+	"endU": "45",
+	"machineRoomName": "机房3号"
+}
+```
+
+
+响应结果
+
+
+```javascript
+{
+	"code": 200,
+	"message": "OK"
+}
+
+```

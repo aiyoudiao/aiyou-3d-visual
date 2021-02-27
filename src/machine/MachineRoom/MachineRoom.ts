@@ -39,7 +39,15 @@ export default class MachineRoom {
             }
 
             if (item.objType === 'emptyCabinet') {
-                const cabinet1 = new Cabinet(item, this)
+                // let cabinet1 = null
+                // if (this.cabinets.length > 0) {
+                //     cabinet1 = new Cabinet(item, this, this.cabinets[0].cabinet)
+                // } else {
+                //     cabinet1 = new Cabinet(item, this)
+                // }
+
+                let cabinet1 = new Cabinet(item, this)
+                
                 this.cabinets.push(cabinet1)
                 addObject(cabinet1.cabinet, 'scene')
             }
@@ -51,9 +59,21 @@ export default class MachineRoom {
 
     }
 
+    // 重新调整机房的面积、围墙的宽高位置、门、窗、电视、海报、机房、设备
+    reset () {
+        // 拆掉所有可以拆除的，再重新绘制
+        this.clearAllItCanBeRemove()
+
+        // 重新绘制围墙、门、窗、电视、海报，
+
+        // 调整每一个机房及它们的设备位置
+
+    }
+
     drawFloor(item) {
         return generateCube(item)
     }
+
 
     drawWall(item: { style?: any; wallData?: any; depth?: any; height?: any; width?: any }) {
         /* 墙体的厚度、高度、宽度 */
@@ -121,6 +141,40 @@ export default class MachineRoom {
         });
     }
 
+    // 从场景以及缓存对象中清除所有可以清除的
+    clearAllItCanBeRemove () {
+        const list = [
+            'floor', 'windowGlasses', 'wall5-windowHole', 'windowGlasses', 'wall6-windowHole', 'doorCaseRight', 'doorCaseLeft', 'doorCaseTop', 'doorCaseBottom', 'doorControl',
+            'doorLeft', 'doorRight', 'windowGlasses', 'wall1-doorhole-windowHole', 'windowMessage', 'wall2', 'wall3', 'windowTV', 'wall4', 
+        ]
+
+        scene.children.forEach((v, i) => {
+            if (!list.includes(v.name)) return
+
+            const itCanBeRemove = scene.getObjectByName(list[i])
+            scene.remove(itCanBeRemove)
+
+            const floorObjIndex = dataSet.findIndex(obj => obj.name === list[i])
+            floorObjIndex > -1 && dataSet.splice(floorObjIndex, 1)
+        })
+
+    }
+
+    // 从场景中隐藏所有与机柜设备无关的外景
+    hideAllItCanBeHidden () {
+        const list = [
+            'floor', 'windowGlasses', 'wall5-windowHole', 'windowGlasses', 'wall6-windowHole', 'doorCaseRight', 'doorCaseLeft', 'doorCaseTop', 'doorCaseBottom', 'doorControl',
+            'doorLeft', 'doorRight', 'windowGlasses', 'wall1-doorhole-windowHole', 'windowMessage', 'wall2', 'wall3', 'windowTV', 'wall4', 
+        ]
+
+        dataSet.forEach((v, i) => {
+            if (!list.includes(v.name)) return
+
+            const floorObjIndex = dataSet.findIndex(obj => obj.name === list[i])
+            floorObjIndex > -1 && (dataSet[floorObjIndex].visible = false)
+        })
+    }
+
     drawCabinet () {
         this.cabinets.forEach(cabinet => cabinet.show())
     }
@@ -135,6 +189,9 @@ export default class MachineRoom {
         // 不可见行设置
     }
 
+    /**
+     * 销毁机房中所有物品
+     */
     dispose() {
 
     }

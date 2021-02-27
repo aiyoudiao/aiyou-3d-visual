@@ -4,7 +4,7 @@
       <img
         :src="require('@/assets/picture/2.png')"
         alt=""
-        style="width: 300px; height: 400px; opacity: 1"
+        :style="`width: 300px; height: ${height}px; opacity: 1`"
       />
     </div>
     <!-- 下面是详细信息展示 -->
@@ -52,6 +52,12 @@ export default {
         ];
       },
     },
+    height: {
+      type: Number,
+      default: () => {
+        return 400
+      }
+    }
   },
   data() {
     return {};

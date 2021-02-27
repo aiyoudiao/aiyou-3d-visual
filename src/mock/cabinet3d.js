@@ -107,7 +107,7 @@ List['machine-room'].rows = Array(count).fill(1).map(item => {
     })
 })
 
-const cabinetNum = Mock.Random.integer(7, 20)
+const cabinetNum = Mock.Random.integer(100, 200)
 const cabinetAndDevice = {
     cabinets: {
         title: [{
@@ -172,7 +172,7 @@ const cabinetAndDevice = {
             label: '设备型号'
         },
         {
-            name: 'dataCenterName：',
+            name: 'dataCenterName',
             label: '设备所属数据中心'
         },
         {
@@ -232,6 +232,16 @@ cabinetAndDevice.serverDeviceList.total = cabinetAndDevice.serverDeviceList.list
 
 
 export default {
+
+    subCabinetRecordDevice: (config) => {
+        const data = JSON.parse(config.body)
+
+        return {
+            code: 200,
+            message: 'OK',
+            data
+        }
+    },
 
     getDataCenter: config => {
         return this.getTableList(config)

@@ -311,7 +311,8 @@ export function addTunnel(projectdata) {
         var map = new THREE.TextureLoader().load(projectdata.imgurl);
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.anisotropy = 16;
-        material = new THREE.MeshLambertMaterial({ map: map, side: THREE.DoubleSide });
+        material = new THREE.MeshLambertMaterial({ map: map, side: THREE.FrontSide //THREE.DoubleSide 
+        });
     } else material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
@@ -336,7 +337,7 @@ export function addTemPlane(_objinfo) {
     }
     var MaterParam = {//材质的参数
         map: texture,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide, // THREE.DoubleSide,
         blending: THREE.NoBlending, //THREE.AdditiveBlending,
         transparent: options.transparent,
         //needsUpdate:true,

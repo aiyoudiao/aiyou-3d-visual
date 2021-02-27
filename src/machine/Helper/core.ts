@@ -334,7 +334,7 @@ export function createPlaneGeometry(obj: { width: any; height: any; imgurl: any;
 
     const materialModel = {
         map: texture,
-        side: obj.side || THREE.DoubleSide || THREE.FrontSide,
+        side: obj.side ||  THREE.FrontSide || THREE.DoubleSide,
         transparent: transparent,
         opacity: obj.opacity || 1,
     } as any

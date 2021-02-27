@@ -41,33 +41,6 @@ function getHeightByStratUunitAndEndUunit(startU, endU) {
     return getHeightByUnum(uNum)
 }
 
-/**
- * 机房等比例扩充
- */
-
-const proportion = 3.0
-
-function getValueByProportion (value, customProportion) {
-    if (customProportion) {
-        return value * customProportion
-    }
-
-    return value * proportion
-}
-
-
-/**
- * 单个区域的机房位置偏移
- */
-const transition = 1000
-function getPositionByTransition (value, value2) {
-    if (value2) {
-        return value + value2 + transition
-    }
-
-    return value + transition
-}
-
 
 
 
@@ -79,9 +52,9 @@ export let cabinet = {
     devtype: 'emptyCabinet',
     transparent: false,
     size: { width: 90, depth: 70, height: getHeightByUnum(42) + 4, thick: 2 },
-    x: getValueByProportion(-700),
+    x: -700,
     y: getHeightByUnum(21),
-    z: getValueByProportion(-270),
+    z: -270,
     rotation: [{ direction: "y", degree: 0.5 * Math.PI }],
     style: {
         skin: {
@@ -210,9 +183,9 @@ export default {
             devtype: 'floor',
             itCanBeRemove: true, // 是否可拆除
             desc: '地板', // 描述
-            width: getValueByProportion(2000),
-            depth: getValueByProportion(1600),
-            height: getValueByProportion(10, 1.0),
+            width: 10000,
+            depth: 8000,
+            height: 10,
             rotation: [{ direction: "x", degree: 0 }], //旋转 表示x方向0度  arb表示任意参数值[x,y,z,angle]
             x: 0,
             y: 0,
@@ -250,9 +223,9 @@ export default {
             devtype: "wall",
             itCanBeRemove: true, // 是否可拆除
             desc: '墙体', // 描述
-            depth: getValueByProportion(20),
-            length: getValueByProportion(100),
-            height: getValueByProportion(240, 1.0),
+            depth: 20,
+            length: 100,
+            height: 240,
             userData: {
                 devtype: 'wall',
             }
@@ -264,8 +237,8 @@ export default {
                     name: "wall5",
                     itCanBeRemove: true, // 是否可拆除
                     desc: '左边带玻璃的墙', // 描述
-                    depth: getValueByProportion(20),
-                    height: getValueByProportion(240, 1.0),
+                    depth: 20,
+                    height: 240,
                     skin: {
                         skin_up: {
                             skinColor: 0xdddddd,
@@ -297,14 +270,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(-990),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-800),
+                        x: -990,
+                        y: 120,
+                        z: -800,
                     },
                     endDot: {
-                        x: getValueByProportion(-990),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(800),
+                        x: -990,
+                        y: 120,
+                        z: 800,
                     },
                     childrens: [
                         {
@@ -315,17 +288,17 @@ export default {
                             objType: "windowHole",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '左边墙体的挖的洞', // 描述
-                            depth: getValueByProportion(20),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 20,
+                            height: 160,
                             startDot: {
-                                x: getValueByProportion(-990),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(-750),
+                                x: -990,
+                                y: 130,
+                                z: -750,
                             },
                             endDot: {
-                                x: getValueByProportion(-990),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(750),
+                                x: -990,
+                                y: 130,
+                                z: 750,
                             },
                         },
                         {
@@ -335,8 +308,8 @@ export default {
                             objType: "glasses",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '左边墙体的玻璃', // 描述
-                            depth: getValueByProportion(5),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 5,
+                            height: 160,
                             skin: {
                                 skin_fore: {
                                     imgurl: "glass.png",
@@ -355,14 +328,14 @@ export default {
                             },
                             rotation: [{ direction: "y", degree: 0.5 * Math.PI }],
                             startDot: {
-                                x: getValueByProportion(240),
-                                y: getValueByProportion(50, 1.0),
-                                z: getValueByProportion(0),
+                                x: 240,
+                                y: 50,
+                                z: 0,
                             },
                             endDot: {
-                                x: getValueByProportion(240 + 1500),
-                                y: getValueByProportion(50 + 160, 1.0),
-                                z: getValueByProportion(0),
+                                x: 240 + 1500,
+                                y: 50 + 160,
+                                z: 0,
                             },
                         },
                     ],
@@ -373,8 +346,8 @@ export default {
                     name: "wall6",
                     itCanBeRemove: true, // 是否可拆除
                     desc: '右边带玻璃的墙', // 描述
-                    depth: getValueByProportion(20),
-                    height: getValueByProportion(240, 1.0),
+                    depth: 20,
+                    height: 240,
                     skin: {
                         skin_up: {
                             skinColor: 0xdddddd,
@@ -406,14 +379,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(990),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-800),
+                        x: 990,
+                        y: 120,
+                        z: -800,
                     },
                     endDot: {
-                        x: getValueByProportion(990),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(800),
+                        x: 990,
+                        y: 120,
+                        z: 800,
                     },
                     childrens: [
                         {
@@ -424,17 +397,17 @@ export default {
                             objType: "windowHole",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '右边墙体的挖的洞', // 描述
-                            depth: getValueByProportion(20),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 20,
+                            height: 160,
                             startDot: {
-                                x: getValueByProportion(990),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(-750),
+                                x: 990,
+                                y: 130,
+                                z: -750,
                             },
                             endDot: {
-                                x: getValueByProportion(990),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(750),
+                                x: 990,
+                                y: 130,
+                                z: 750,
                             },
                         },
                         
@@ -445,8 +418,8 @@ export default {
                             objType: "glasses",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '右边边墙体的玻璃', // 描述
-                            depth: getValueByProportion(5),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 5,
+                            height: 160,
                             skin: {
                                 skin_fore: {
                                     imgurl: "glass.png",
@@ -465,14 +438,14 @@ export default {
                             },
                             rotation: [{ direction: "y", degree: 0.5 * Math.PI }],
                             startDot: {
-                                x: getValueByProportion(-240),
-                                y: getValueByProportion(50, 1.0),
-                                z: getValueByProportion(0),
+                                x: -240,
+                                y: 50,
+                                z: 0,
                             },
                             endDot: {
-                                x: getValueByProportion(-(240 + 1500)),
-                                y: getValueByProportion(50 + 160, 1.0),
-                                z: getValueByProportion(0),
+                                x: -(240 + 1500),
+                                y: 50 + 160,
+                                z: 0,
                             },
                         },
                     ],
@@ -491,9 +464,9 @@ export default {
             devtype: 'wall',
             itCanBeRemove: true, // 是否可拆除
             desc: '墙体', // 描述
-            depth: getValueByProportion(20),
-            width: getValueByProportion(100), //根据实际的宽度来的
-            height: getValueByProportion(240, 1.0),
+            depth: 20,
+            width: 100, //根据实际的宽度来的
+            height: 240,
             style: {
                 skinColor: 0xb0cee0,
             },
@@ -526,14 +499,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(-770),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(550),
+                        x: -770,
+                        y: 120,
+                        z: 550,
                     },
                     endDot: {
-                        x: getValueByProportion(770),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(550),
+                        x: 770,
+                        y: 120,
+                        z: 550,
                     },
                     childrens: [
                         {
@@ -544,17 +517,17 @@ export default {
                             objType: "doorhole",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 前面墙 - 门洞', // 描述
-                            depth: getValueByProportion(20),
-                            height: getValueByProportion(220, 1.0),
+                            depth: 20,
+                            height: 220,
                             startDot: {
-                                x: getValueByProportion(190, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550),
+                                x: 190,
+                                y: 110,
+                                z: 550,
                             },
                             endDot: {
-                                x: getValueByProportion(410, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550),
+                                x: 410,
+                                y: 110,
+                                z: 550,
                             },
                         },
                         {
@@ -565,17 +538,17 @@ export default {
                             objType: "windowHole",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 前面墙 - 展窗的洞', // 描述
-                            depth: getValueByProportion(20),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 20,
+                            height: 160,
                             startDot: {
-                                x: getValueByProportion(-450),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(550)
+                                x: -450,
+                                y: 130,
+                                z: 550
                             },
                             endDot: {
-                                x: getValueByProportion(50),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(550)
+                                x: 50,
+                                y: 130,
+                                z: 550
                             },
                         },
                         // {
@@ -606,17 +579,17 @@ export default {
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 前面墙 - 右边的门框', // 描述
                             objType: "cube",
-                            depth: getValueByProportion(24),
-                            height: getValueByProportion(220, 1.0),
+                            depth: 24,
+                            height: 220,
                             startDot: {
-                                x: getValueByProportion(405, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550)
+                                x: 405,
+                                y: 110,
+                                z: 550
                             },
                             endDot: {
-                                x: getValueByProportion(410, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550)
+                                x: 410,
+                                y: 110,
+                                z: 550
                             },
                             skinColor: 0xffffff,
                         },
@@ -627,17 +600,17 @@ export default {
                             desc: '内部的墙体 - 前面墙 - 左边的门框', // 描述
                             uuid: "",
                             objType: "cube",
-                            depth: getValueByProportion(24),
-                            height: getValueByProportion(220, 1.0),
+                            depth: 24,
+                            height: 220,
                             startDot: {
-                                x: getValueByProportion(190, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550)
+                                x: 190,
+                                y: 110,
+                                z: 550
                             },
                             endDot: {
-                                x: getValueByProportion(195, 1.0),
-                                y: getValueByProportion(110, 1.0),
-                                z: getValueByProportion(550)
+                                x: 195,
+                                y: 110,
+                                z: 550
                             },
                             skinColor: 0xffffff,
                         },
@@ -648,17 +621,17 @@ export default {
                             desc: '内部的墙体 - 前面墙 - 上面的门框', // 描述
                             uuid: "",
                             objType: "cube",
-                            depth: getValueByProportion(24),
-                            height:getValueByProportion( 5, 1.0),
+                            depth: 24,
+                            height: 5,
                             startDot: {
-                                x: getValueByProportion(190, 1.0),
-                                y: getValueByProportion(220, 1.0),
-                                z: getValueByProportion(550)
+                                x: 190,
+                                y: 220,
+                                z: 550
                             },
                             endDot: {
-                                x: getValueByProportion(410, 1.0),
-                                y: getValueByProportion(220, 1.0),
-                                z: getValueByProportion(550)
+                                x: 410,
+                                y: 220,
+                                z: 550
                             },
                             skinColor: 0xffffff,
                         },
@@ -669,17 +642,17 @@ export default {
                             desc: '内部的墙体 - 前面墙 - 下面的门框', // 描述
                             uuid: "",
                             objType: "cube",
-                            depth: getValueByProportion(24),
-                            height: getValueByProportion(5, 1.0),
+                            depth: 24,
+                            height: 5,
                             startDot: {
-                                x: getValueByProportion(195, 1.0),
-                                y: getValueByProportion(5, 1.0),
-                                z: getValueByProportion(550)
+                                x: 195,
+                                y: 5,
+                                z: 550
                             },
                             endDot: {
-                                x: getValueByProportion(405, 1.0),
-                                y: getValueByProportion(5, 1.0),
-                                z: getValueByProportion(550)
+                                x: 405,
+                                y: 5,
+                                z: 550
                             },
                             skinColor: 0xffffff,
                         },
@@ -691,17 +664,17 @@ export default {
                             desc: '内部的墙体 - 前面墙 - 门旁边的控制器', // 描述
                             uuid: "",
                             objType: "cube",
-                            depth: getValueByProportion(10),
-                            height: getValueByProportion(40, 1.0),
+                            depth: 10,
+                            height: 40,
                             startDot: {
-                                x:getValueByProportion( 160),
-                                y: getValueByProportion(140, 1.0),
-                                z: getValueByProportion(560),
+                                x: 160,
+                                y: 140,
+                                z: 560,
                             },
                             endDot: {
-                                x: getValueByProportion(180),
-                                y: getValueByProportion(140, 1.0),
-                                z: getValueByProportion(560),
+                                x: 180,
+                                y: 140,
+                                z: 560,
                             },
                             skinColor: 0x333333,
                             skin: {
@@ -720,8 +693,8 @@ export default {
                             objType: "cube",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 前面墙 - 左边的门', // 描述
-                            depth: getValueByProportion(4),
-                            height: getValueByProportion(210, 1.0),
+                            depth: 4,
+                            height: 210,
                             skinColor: 0x51443e,
                             skin: {
                                 skin_fore: {
@@ -734,14 +707,14 @@ export default {
                                 },
                             },
                             startDot: {
-                                x: getValueByProportion(195, 1.0),
-                                y: getValueByProportion(112, 1.0),
-                                z: getValueByProportion(550),
+                                x: 195,
+                                y: 112,
+                                z: 550,
                             },
                             endDot: {
-                                x: getValueByProportion(300, 1.0),
-                                y: getValueByProportion(112, 1.0),
-                                z: getValueByProportion(550),
+                                x: 300,
+                                y: 112,
+                                z: 550,
                             },
                         },
                         {
@@ -751,8 +724,8 @@ export default {
                             desc: '内部的墙体 - 前面墙 - 右边的门', // 描述
                             uuid: "",
                             objType: "cube",
-                            depth: getValueByProportion(4),
-                            height: getValueByProportion(210, 1.0),
+                            depth: 4,
+                            height: 210,
                             skinColor: 0x51443e,
                             skin: {
                                 skin_fore: {
@@ -767,14 +740,14 @@ export default {
                                 },
                             },
                             startDot: {
-                                x: getValueByProportion(300, 1.0),
-                                y: getValueByProportion(112, 1.0),
-                                z: getValueByProportion(550),
+                                x: 300,
+                                y: 112,
+                                z: 550,
                             },
                             endDot: {
-                                x: getValueByProportion(405, 1.0),
-                                y: getValueByProportion(112, 1.0),
-                                z: getValueByProportion(550),
+                                x: 405,
+                                y: 112,
+                                z: 550,
                             },
                         },
                         {
@@ -784,8 +757,8 @@ export default {
                             objType: "glasses",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 前面墙 - 墙上的玻璃', // 描述
-                            depth: getValueByProportion(5),
-                            height: getValueByProportion(160, 1.0),
+                            depth: 5,
+                            height: 160,
                             skin: {
                                 skin_fore: {
                                     imgurl: "glass.png",
@@ -803,14 +776,14 @@ export default {
                                 },
                             },
                             startDot: {
-                                x: getValueByProportion(-450),
-                                y: getValueByProportion(130, 1.0),
-                                z:getValueByProportion( 550),
+                                x: -450,
+                                y: 130,
+                                z: 550,
                             },
                             endDot: {
-                                x: getValueByProportion(50),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(550),
+                                x: 50,
+                                y: 130,
+                                z: 550,
                             },
                         },
                     ],
@@ -840,14 +813,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(-770),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-450),
+                        x: -770,
+                        y: 120,
+                        z: -450,
                     },
                     endDot: {
-                        x: getValueByProportion(770),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-450),
+                        x: 770,
+                        y: 120,
+                        z: -450,
                     },
                     childrens: [
                         {
@@ -857,8 +830,8 @@ export default {
                             objType: "cube",
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 后面墙 - 墙上的海报', // 描述
-                            depth: getValueByProportion(2),
-                            height: getValueByProportion(150, 1.0),
+                            depth: 2,
+                            height: 150,
                             skinColor: 0xffffff,
                             skin: {
                                 skin_fore: {
@@ -866,14 +839,14 @@ export default {
                                 },
                             },
                             startDot: {
-                                x: getValueByProportion(450, 1.0),
-                                y: getValueByProportion(150, 1.0),
-                                z: getValueByProportion(-440),
+                                x: 450,
+                                y: 150,
+                                z: -440,
                             },
                             endDot: {
-                                x: getValueByProportion(530, 1.0),
-                                y: getValueByProportion(150, 1.0),
-                                z: getValueByProportion(-440),
+                                x: 530,
+                                y: 150,
+                                z: -440,
                             },
                         },
                     ],
@@ -903,14 +876,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(-760),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-460),
+                        x: -760,
+                        y: 120,
+                        z: -460,
                     },
                     endDot: {
-                        x: getValueByProportion(-760),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(1020 - 460),
+                        x: -760,
+                        y: 120,
+                        z: 1020 - 460,
                     },
                 },
                 {
@@ -938,14 +911,14 @@ export default {
                         },
                     },
                     startDot: {
-                        x: getValueByProportion(760),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(-460),
+                        x: 760,
+                        y: 120,
+                        z: -460,
                     },
                     endDot: {
-                        x: getValueByProportion(760),
-                        y: getValueByProportion(120, 1.0),
-                        z: getValueByProportion(1020 - 460),
+                        x: 760,
+                        y: 120,
+                        z: 1020 - 460,
                     },
                     childrens: [
                         {
@@ -955,8 +928,8 @@ export default {
                             itCanBeRemove: true, // 是否可拆除
                             desc: '内部的墙体 - 右面墙 - 电视机', // 描述
                             objType: "cube",
-                            depth: getValueByProportion(10),
-                            height: getValueByProportion(150, 1.0),
+                            depth: 10,
+                            height: 150,
                             skinColor: 0x111111,
                             skin: {
                                 skin_left: {
@@ -964,14 +937,14 @@ export default {
                                 },
                             },
                             startDot: {
-                                x: getValueByProportion(750),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(-220, 1.0),
+                                x: 750,
+                                y: 130,
+                                z: -220,
                             },
                             endDot: {
-                                x: getValueByProportion(750),
-                                y: getValueByProportion(130, 1.0),
-                                z: getValueByProportion(320, 1.0),
+                                x: 750,
+                                y: 130,
+                                z: 320,
                             },
                         },
                     ],

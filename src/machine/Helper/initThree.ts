@@ -140,7 +140,7 @@ function initStats() {
 }
 
 function initCamera() {
-    camera = new THREE.PerspectiveCamera(45, domElement.offsetWidth / domElement.offsetHeight, 1, 10000)
+    camera = new THREE.PerspectiveCamera(45, domElement.offsetWidth / domElement.offsetHeight, 1, 15000)
     camera.name = 'mainCamera';
     camera.position.set(0, 1000, 1600)
     camera.up.x = 0;
@@ -166,7 +166,7 @@ function initRenderer() {
      * 开启渲染器的阴影贴图，开启阴影计算
      */
     renderer.setClearColor(0x1b7ace, 1.0);
-    renderer.shadowMap.enabled = true; //阴影
+    // renderer.shadowMap.enabled = true; //阴影
 
     /**
      * 以下是带包裹层的特效渲染器
@@ -223,18 +223,18 @@ function initLight() {
     // light.position.set(1000, 1000, 200);
     // scene.add(light);
 
-    const light1 = new THREE.AmbientLight(0xcccccc)
+    const light1 = new THREE.AmbientLight(0x555555)
     light1.position.set(0, 1200, 0)
     scene.add(light1)
 
     /**
      * 设置点光源，同时开启光源对象的阴影计算功能
      */
-    const light2 = new THREE.PointLight(0x555555)
-    light2.shadow.camera.near = 1
-    light2.shadow.camera.far = 5000
+    const light2 = new THREE.PointLight(0xeeeeee)
+    // light2.shadow.camera.near = 1
+    // light2.shadow.camera.far = 5000
     light2.position.set(0, 1200, 0)
-    light2.castShadow = true
+    // light2.castShadow = true
     scene.add(light2)
 
 
@@ -290,25 +290,42 @@ function initControl() {
 
 function render(time?) {
 
-    const delta = clock.getDelta();
+    // const delta = clock.getDelta();
 
     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
         TWEEN.update(time);
     }
     
     updatePath()
-    if (outlinePass.selectedObjects[0]) {
-        compose.render(delta)
-    } else {
-        renderer.render(scene, camera)
-    }
-    // renderer.render(scene, camera)
+    renderer.render(scene, camera)
     orbitControls.update()
     // stats.update(delta)
-    stats.update(delta)
+    stats.update(time)
     
     requestAnimationFrame(render)
 }
+
+// function render(time?) {
+
+//     const delta = clock.getDelta();
+
+//     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
+//         TWEEN.update(time);
+//     }
+    
+//     updatePath()
+//     if (outlinePass.selectedObjects[0]) {
+//         compose.render(delta)
+//     } else {
+//         renderer.render(scene, camera)
+//     }
+//     // renderer.render(scene, camera)
+//     orbitControls.update()
+//     // stats.update(delta)
+//     stats.update(delta)
+    
+//     requestAnimationFrame(render)
+// }
 
 
 function initData() {

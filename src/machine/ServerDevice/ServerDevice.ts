@@ -34,6 +34,7 @@ export default class ServerDevice {
         let serviceUUID = serverDeviceCfg.uuid || generateUUID()
 
         const newObj = generateCube(serverDeviceCfg)
+        newObj.visible = false
         newObj.userData = serverDeviceCfg.userData
         newObj.userData['equipmentUUID'] = uuid
         newObj.uuid = serviceUUID
@@ -41,6 +42,15 @@ export default class ServerDevice {
         addObject(newObj)
 
         this.serverDevice = newObj
+    }
+
+    // 初始化异常设备
+    initErrorDevice () {
+        /**
+         * 1. 遍历当前机柜已有的所有设备
+         * 2. 判断U数是否重叠，如果重叠就把当前设备打上红色标记
+         * 3. 同时给当前机柜的头顶添加上一个黄色的三角标记
+         */
     }
 
     bindEvent() {

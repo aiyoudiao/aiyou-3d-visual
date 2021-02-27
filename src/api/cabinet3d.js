@@ -22,6 +22,17 @@ export function getCabinetAndDevice(id) {
   })
 }
 
+export function subCabinetRecordDevice(params) {
+  const data = {
+    ...params
+  }
+  return request({
+    url: '/cabinet3d/subCabinetRecordDevice',
+    method: 'post',
+    data: data
+  })
+}
+
 export function removeItem(id) {
   return request({
     url: '/cabinet3d/remove/' + id,

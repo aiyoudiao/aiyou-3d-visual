@@ -18,13 +18,34 @@ export default class Cabinet {
 
     serverDevices: Array<ServerDevice> = []
 
-    constructor(cfg, machineRoom: MachineRoom) {
+    constructor(cfg, machineRoom: MachineRoom, cloneCabinet?) {
         this.parent = machineRoom
-        this.init(cfg)
+        if (cloneCabinet) {
+            this.cabinet = this.clone(cfg, cloneCabinet)
+        } else {
+            this.init(cfg)
+        }
         this.bindEvent()
     }
 
-    init(item) {
+    private clone(item, mainCabinet) {
+        this.listen = EventHandler1.getEventListen()
+        const cabinet = mainCabinet.clone()
+
+        const { x = 0, y = 0, z = 0 } = item
+        const floorHeight = 10
+        cabinet.position.x = x
+        cabinet.position.z = z
+        // cabinet.position.set(x, y + floorHeight, z)
+        // handleRotaion(item.rotation, cabinet)
+        cabinet.name = item.name
+        cabinet.uuid = generateUUID()
+        cabinet.userData = item.userData || { name: item.name, alarmInfo: [] }
+
+        return cabinet
+    }
+
+    private init(item) {
         this.listen = EventHandler1.getEventListen()
         this.drawingCabinet(item)
     }
@@ -33,6 +54,7 @@ export default class Cabinet {
         this.bindHoverCabinet()
         this.bindThreeClickCabinet()
         this.binDBClickCabinetDoor()
+        this.bindSingleClickCabinet()
     }
 
     bindHoverCabinet() {
@@ -87,7 +109,7 @@ export default class Cabinet {
     }
 
     /**
-     * 绑定三击机柜门的事件
+     * 绑定三击机柜的事件
      */
     bindThreeClickCabinet() {
         this.listen.receive('threeclick', target => {
@@ -150,6 +172,76 @@ export default class Cabinet {
         orbitControls.enabled = true;
     }
 
+    /**
+     * 绑定单机机柜门的事件
+     */
+    bindSingleClickCabinet () {
+        this.listen.receive('click', target => {
+            if (!target) {
+                return
+            }
+
+            if (this.isNotMe(target)) {
+                return
+            }
+
+            if (isExists(target.object) && isClickModel('cabinet', target.object)) {
+                this.sigleClickCabinet(target)
+            }
+        })
+    }
+
+    sigleClickCabinet (target) {
+        orbitControls.enabled = false;
+        let SELECTED = target.object;
+        SELECTED = findTopObj('cabinet', SELECTED)
+        
+        /**
+         * 需求；
+         * 1. 点击机柜，弹出一个表格，展示当前机柜中所有设备的信息，信息包含两种，一种是已存在的设备U位，一种是空缺的U位
+         * 2. 已存在的设备U位信息可以修改和删除，空缺的设备U位信息可以点击这一行的新增，也可以点击最外层的大新增
+         * 3. 新增信息的表单，包含所有设备信息基础信息的陈设，U位支持选择和手动输入，默认支持手动输入，可以看到哪些U位是可见的。
+         *  
+         * 思路：
+         * 1. 设计表单，获取机柜信息，获取机柜下所有的设备信息，计算出还有哪些空缺U位。
+         * 2. 设计弹窗，弹窗状态的变更，弹窗支持拖拽
+         * 
+         * 实现：
+         * 1. 表单字段信息：设备ID、设备名、设备管理ip、设备状态、设备厂商、设备型号、设备所属数据中心、机架的名称、所属机柜的ID、开始U位、结束U位
+         * 2. 弹窗状态：是否可见
+         */
+        console.log("singleClickCabinet: SELECTED.userData", SELECTED.userData)
+        const serverDevices = this.serverDevices
+        
+        if (vueModel.edited) {
+            vueModel.$set(vueModel, 'recordDeviceUbitDialog', {
+                showOuterVisible: true,
+                cabinetInfo: SELECTED.userData,
+                serverDeviceInfo: serverDevices.reduce((prev, current) => {
+                    prev.push(
+                        current.serverDevice.userData
+                    )
+    
+                    return prev
+                }, [])
+            })
+        } else {
+            vueModel.$set(vueModel, 'recordDeviceUbitDialog', {
+                showOuterVisible: false,
+                cabinetInfo: SELECTED.userData,
+                serverDeviceInfo: serverDevices.reduce((prev, current) => {
+                    prev.push(
+                        current.serverDevice.userData
+                    )
+    
+                    return prev
+                }, [])
+            })
+        }
+
+        orbitControls.enabled = true;
+    }
+
     private isNotMe(target) {
         return findTopObj('cabinet', target.object) !== this.cabinet
     }
@@ -182,12 +274,13 @@ export default class Cabinet {
         const { size, style, doors, userData, childrens, rotation } = item
         const emptyCabinet = this.drawingEmptyCabinet(item)
 
-        this.drawingUbit(item, emptyCabinet)
+        // this.drawingUbit(item, emptyCabinet)
         this.drawingCabinetDoors(item, emptyCabinet)
         this.drawingAlarmInfo(item, emptyCabinet)
-        this.stepServerDevices(item, emptyCabinet)
+        // this.stepServerDevices(item, emptyCabinet)
         handleRotaion(item.rotation, emptyCabinet)
         this.cabinet = emptyCabinet
+        // this.cabinet.visible = false
 
     }
 
@@ -353,7 +446,7 @@ export default class Cabinet {
                 // color: 0x0000ff,
                 // 设置纹理贴图：Texture对象作为材质map属性的属性值
                 map: texture,
-                side: THREE.DoubleSide
+                side: THREE.FrontSide //THREE.DoubleSide
             }); //材质对象Material
             let mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
 
@@ -543,6 +636,11 @@ export default class Cabinet {
 
     }
 
+    // 重置当前机柜的位置
+    resetCabinet () {}
+
+    // 重置当前机柜下，所有设备的位置
+    resetServerDevice () {}
 
     show() {
         // 可见性设置
