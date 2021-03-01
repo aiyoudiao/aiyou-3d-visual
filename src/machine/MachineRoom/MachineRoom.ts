@@ -3,6 +3,7 @@ import DataCenter from "../DataCenter/DataCenter"
 import { mergeModel, mergeModel2 } from "../Helper/calc"
 import { generateCube, addObject, generateHole } from '../Helper/core'
 import { dataSet, scene } from '../Helper/initThree'
+import { ICloneCabinet, ICloneCabinetUbit } from "./ICloneCabinet"
 
 
 export default class MachineRoom {

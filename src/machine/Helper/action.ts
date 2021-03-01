@@ -104,8 +104,8 @@ function openRightDoor(_obj, func) {
 //开关机柜门
 export function openCabinetDoor(_obj, func) {
     // console.log('开关机柜门', _obj, func)
-    func()
     openCloseDoor(_obj, _obj.geometry.parameters.width / 2, 0, _obj.geometry.parameters.depth / 2, "right");
+    func(_obj)
 }
 //拉出放回设备
 export function openEquipmentDoor(_obj, func) {
@@ -129,7 +129,9 @@ export function flyToCabinet(targetObj, openDoor) {
          * 处于开门状态，那么就先关门再开门
          */
         if (selectedCabinetDoor.doorState === 'close' || !isExists(selectedCabinetDoor.doorState)) {
-            openCabinetDoor(selectedCabinetDoor, () => { })
+            openCabinetDoor(selectedCabinetDoor, () => { 
+
+            })
         }
     }
 
@@ -230,7 +232,7 @@ export function addBox(_objinfo) {
             h: vsize.h
         }, _objinfo.tween)
             .onUpdate(function (item) {
-                console.log(item.h);
+                // console.log(item.h);
                 //object.geometry.dispose();
                 //object.children[ 1 ].geometry.dispose();
                 var vtgeometry = new THREE.BoxGeometry(vsize.w, item.h, vsize.l);
@@ -290,7 +292,7 @@ export function addTunnel(projectdata) {
             var vt = 1 / vsegment;
             let vindex = Math.floor(t / vt)
             if (1 === t) {
-                console.log(t + '/' + vt + ' = ' + vindex + ' ');
+                // console.log(t + '/' + vt + ' = ' + vindex + ' ');
                 return points[vindex].clone();
             }
             //console.log(t+'/'+vt +' = '+vindex+' '+(vindex+1));
@@ -362,7 +364,7 @@ export function addTemPlane(_objinfo) {
 
         var color = vColors[i % 3];
         if (color == undefined) {
-            console.log("ERROR: " + color);
+            // console.log("ERROR: " + color);
         } else {
             lutColors[3 * i] = color.r;
             lutColors[3 * i + 1] = color.g;
@@ -436,7 +438,7 @@ export function addNurbs(objinfo) {
 
         var color = vColors[i % 3];
         if (color == undefined) {
-            console.log("ERROR: " + color);
+            // console.log("ERROR: " + color);
         } else {
             lutColors[3 * i] = color.r;
             lutColors[3 * i + 1] = color.g;

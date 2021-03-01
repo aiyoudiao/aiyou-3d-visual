@@ -36,7 +36,26 @@ export class EventHandler1 {
             this.eventDictionary[eventType] = []
         }
 
-        this.eventDictionary[eventType].push(eventCallback)
+        const index =  this.eventDictionary[eventType].push(eventCallback)
+        return index
+    }
+
+    /**
+     * 移除事件
+     * @param eventType 
+     * @param index 
+     */
+    delete (eventType, index) {
+        if (!eventTypes.includes(eventType)) {
+            // console.warn('事件必须在' + eventTypes + '之内。');
+            return
+        }
+
+        if (!isExists(this.eventDictionary[eventType])) {
+            return
+        }
+
+        this.eventDictionary[eventType][index] = function () {}
     }
 
     /**

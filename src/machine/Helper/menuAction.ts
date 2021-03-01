@@ -1,6 +1,6 @@
 import { BoxHelper, CircleBufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshPhongMaterial, PlaneGeometry, TextureLoader, Vector3 } from "three";
 import { addBox, addLine, addLinePath, addNurbs, addSprite, addTemPlane, dynamicPath, stopDynamicPath } from "./action";
-import { BASE_PATH, cabinetSpaceList, camera, dataSet, makeWaterList, orbitControls, scene } from "./initThree"
+import { BASE_PATH, cabinetSpaceList, camera, dataSet, makeWaterList, orbitControls, scene, ops } from "./initThree"
 import { addIdentification, delSenceObject, makeDynamicTextSprite, setMaterialColor } from "./util";
 
 
@@ -27,7 +27,9 @@ let beforeServerDevice
  * 场景复位
  */
 export const senceReset = () => {
-    camera.position.set(0, 1000, 1600)
+    const { proportionValue } = ops
+
+    camera.position.set(0, 1000 * proportionValue, 1600 * proportionValue)
     camera.up.x = 0;
     camera.up.y = 1;
     camera.up.z = 0;

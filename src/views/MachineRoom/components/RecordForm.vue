@@ -166,7 +166,7 @@ export default {
           const data = this.getSubmitData();
           this.$emit("submitRecordForm", data);
         } else {
-          console.log("error submit!!");
+          // console.log("error submit!!");
           return false;
         }
       });

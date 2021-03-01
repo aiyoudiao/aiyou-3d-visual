@@ -257,7 +257,13 @@ export function delSenceObject(_objname, _deltype) {
  * 修改材质颜色
  */
 export function setMaterialColor(_objname, _color) {
-    var _obj = findObject(_objname);
+    let _obj = null
+    if (typeof _objname === 'string') {
+        _obj = findObject(_objname);
+    } else {
+        _obj = _objname
+    }
+
     if (isExists(_obj.material.emissive)) {
         _obj.material.emissive.setHex(_color);
     } else if (isExists(_obj.material.materials)) {
@@ -290,10 +296,16 @@ export function addIdentification(_objname, _obj) {
         imgurl: '../datacenterdemo/res/connection.png'
       }
     */
-    var _fobj = findObject(_objname);
+
+    let _fobj = null
+    if (typeof _objname === 'string') {
+        _fobj = findObject(_objname);
+    } else {
+        _fobj = _objname
+    }
     var loader = new THREE.TextureLoader();
     var texture = loader.load(_obj.imgurl, function () { }, undefined, function () { });
-    var spriteMaterial = new THREE.SpriteMaterial({ map: texture});
+    var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
     var sprite = new THREE.Sprite(spriteMaterial);
     sprite.renderOrder = 99
     sprite.name = _obj.name;

@@ -107,7 +107,12 @@ List['machine-room'].rows = Array(count).fill(1).map(item => {
     })
 })
 
-const cabinetNum = Mock.Random.integer(100, 200)
+const n = 3
+const min = Math.pow(n - 1, 2) * (3 * 7)
+const max = Math.pow(n, 2) * (3 * 7) 
+
+const cabinetNum = Mock.Random.integer(max, max)
+// const cabinetNum = Mock.Random.integer(40, 40)
 const cabinetAndDevice = {
     cabinets: {
         title: [{

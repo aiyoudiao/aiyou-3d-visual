@@ -85,7 +85,7 @@
               label="设备服务器信息"
               :disabled="!currentServerDevice.show"
             >
-              <panel-box :dataSet="serverDeviceMesh" :height="430"></panel-box>
+              <panel-box v-for="(serverDeviceMesh, index) in serverDeviceMeshList" :dataSet="serverDeviceMesh" :height="430" :key="`serverDeviceMesh-${index}`"></panel-box>
             </el-tab-pane>
           </el-tabs>
 
@@ -137,7 +137,7 @@ import MachineRoom from "@/machine/MachineRoom/MachineRoom.ts";
 import PanelBox from "./components/PanelBox";
 import RecordForm from "./components/RecordForm";
 import { getCabinetAndDevice, subCabinetRecordDevice } from "@/api/cabinet3d";
-import ops, { cabinet, getHeightByUnum } from "./project";
+import genarateOps, { genarateCabinet, getHeightByUnum } from "./project";
 
 import {
   senceReset,
@@ -238,9 +238,45 @@ export default {
     },
 
     // 设备服务器的网格模型的数据
-    serverDeviceMesh() {
+    // serverDeviceMesh() {
+    //   const meshData = JSON.parse(JSON.stringify(this.currentServerDevice));
+    //   delete meshData.show;
+
+    //   const serverDeviceColumn = JSON.parse(
+    //     JSON.stringify(this.serverDeviceColumn)
+    //   );
+    //   const keys = Object.keys(serverDeviceColumn);
+    //   const values = Object.values(serverDeviceColumn);
+
+    //   return values.map((key, index) => {
+    //     let result;
+
+    //     if (index === 0) {
+    //       result = {
+    //         vip: true,
+    //         label: keys[index],
+    //         content: meshData[key],
+    //         style: {},
+    //       };
+    //     } else {
+    //       result = {
+    //         vip: false,
+    //         label: keys[index],
+    //         content: meshData[key],
+    //         style: {},
+    //       };
+    //     }
+
+    //     return result;
+    //   });
+    // },
+
+        // 设备服务器的网格模型的数据
+    serverDeviceMeshList() {
       const meshData = JSON.parse(JSON.stringify(this.currentServerDevice));
       delete meshData.show;
+
+      const { container = [] } = meshData;
 
       const serverDeviceColumn = JSON.parse(
         JSON.stringify(this.serverDeviceColumn)
@@ -248,26 +284,28 @@ export default {
       const keys = Object.keys(serverDeviceColumn);
       const values = Object.values(serverDeviceColumn);
 
-      return values.map((key, index) => {
-        let result;
+      return container.map((subMeshData) => {
+        return values.map((key, index) => {
+          let result;
 
-        if (index === 0) {
-          result = {
-            vip: true,
-            label: keys[index],
-            content: meshData[key],
-            style: {},
-          };
-        } else {
-          result = {
-            vip: false,
-            label: keys[index],
-            content: meshData[key],
-            style: {},
-          };
-        }
+          if (index === 0) {
+            result = {
+              vip: true,
+              label: keys[index],
+              content: subMeshData[key],
+              style: {},
+            };
+          } else {
+            result = {
+              vip: false,
+              label: keys[index],
+              content: subMeshData[key],
+              style: {},
+            };
+          }
 
-        return result;
+          return result;
+        });
       });
     },
 
@@ -313,7 +351,7 @@ export default {
         // const { deviceID, deviceName, deviceIP, deviceState, deviceManufacturer, deviceType, dataCenterName, rankName, cabinetID, startU, endU } = info
         const { startU, endU } = info;
         for (let i = startU; i <= endU; i++) {
-          console.log(i + "-", uContainer[i]);
+          // console.log(i + "-", uContainer[i]);
           uContainer[i].isEmpty = false;
         }
       });
@@ -331,11 +369,10 @@ export default {
   },
   methods: {
     // 初始化
-    async init() {
+    async init(ops) {
       const vueModel = this;
-      console.log("mounted@vueModel", vueModel);
-
-      console.log("ops.objects", ops.objects);
+      // console.log("mounted@vueModel", vueModel);
+      // console.log("ops.objects", ops.objects);
 
       initThree({
         domID: "three-app-dom",
@@ -343,6 +380,7 @@ export default {
         eventList: [],
         sourcePath: undefined,
         vueModel: vueModel,
+        proportionValue: ops.proportionValue
       });
 
       new MachineRoom(
@@ -354,8 +392,8 @@ export default {
         null
       );
 
-      console.log('scene', scene)
-      console.log('dataSet', dataSet)
+      // console.log('scene', scene)
+      // console.log('dataSet', dataSet)
     },
 
     // 请求机柜及服务器信息
@@ -367,10 +405,18 @@ export default {
       this.timer = setTimeout(async () => {
         const result = await getCabinetAndDevice(this.machineRoomId);
         const { code, data, message } = result;
+        const { proportionValue, transitionValue } = this.handleProportionAndTransition(data)
+        const ops = genarateOps(proportionValue, transitionValue)
 
         this.handleRequestTitle(data);
-        this.handleRequestList(data);
-        this.init();
+        const refectResult = this.handleRequestList(data, proportionValue);
+        ops.objects.push(...refectResult);
+        const newOps = {
+          ...ops,
+          proportionValue, transitionValue 
+        }
+        this.init(newOps);
+
       }, 500);
     },
 
@@ -400,8 +446,8 @@ export default {
     },
 
     // 处理请求结果中的list，动态生成列表数据
-    handleRequestList(result) {
-      console.log("result", result);
+    handleRequestList(result, proportionValue) {
+      // console.log("result", result);
       const { cabinets, serverDeviceList } = result;
       const data = [];
       cabinets.list.forEach((item) => {
@@ -459,15 +505,62 @@ export default {
         });
       });
 
-      let refectResult = this.refactCabinet(data);
+      let refectResult = this.refactCabinet(data, proportionValue);
 
-      refectResult = this.sortCabinet(refectResult);
+      refectResult = this.sortCabinet(refectResult, proportionValue);
 
-      ops.objects.push(...refectResult);
+      return refectResult
+    },
+
+    // 处理请求中的数据，获取机房规模的比例，以及机房分区时，每个区域的偏移值
+    handleProportionAndTransition(result) {
+      const { cabinets, serverDeviceList } = result;
+
+      /**
+       * 机房动态的成倍扩充的算法
+       * 
+       *  默认装 21
+       *  超过 21 机房面积会扩充 4 倍 ， 但排列是 2倍
+       *  超过 2倍 * 3排 * 14 个 = 84 , 可以额外 多一排
+       * 2倍 * 3排 * 2倍 * 7个
+       *  
+       * 超过 84 面积会扩充 6倍， 但排列是 3 倍
+       *  超过 3倍 * 3排 * 21 个 = 189，可以额外 多加二排
+       *  3倍 * 3排 * 3被 * 7个
+       * 
+       * 超过 189 面积扩充 8 倍， 排列时 4 倍
+       *  超过 4倍 * 3 排 * 28 个 = 336， 可以额外 多加三排
+       * 4倍 * 3排 * 4倍 * 7个
+       */
+
+      // 正常上限是 n^2 * (3 * 7) 
+      // 最大上限是 n^2 * (3 * 7) + [(n - 1) * n * 7] 
+      // 但最大上线 仅仅是刚好放完这么多机柜，可以少放一排来让机房更美观
+
+
+      /**
+       * 目前最大扩充上限为1701
+       */
+      const nList = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+      const proportionValue = nList.find(n => {
+
+        const minM = n - 1
+        const maxM = n
+
+        const minValue = Math.pow(minM, 2) * (3 * 7)
+        const maxValue = Math.pow(maxM, 2) * (3 * 7) 
+
+        return cabinets.list.length > minValue && cabinets.list.length <= maxValue
+      })
+
+      return {
+        proportionValue
+      }
     },
 
     // 动态生成绘制机柜的配置数据
-    refactCabinet(data) {
+    refactCabinet(data, proportionValue) {
       let cabinets = [];
       data.forEach((cabinetConf) => {
         const {
@@ -481,7 +574,7 @@ export default {
           children,
         } = cabinetConf;
 
-        const cabinetTempObj = JSON.parse(JSON.stringify(cabinet));
+        const cabinetTempObj = JSON.parse(JSON.stringify(genarateCabinet(proportionValue)));
         cabinets.push(cabinetTempObj);
         cabinetTempObj.name = "cabinet" + "_" + cabinetID;
         this.cabinetList.push(cabinetTempObj.name);
@@ -554,8 +647,8 @@ export default {
     },
 
     // 对机柜的数据进行排序，防止重叠在一起
-    sortCabinet(data) {
-      let num = 7 * 3;
+    sortCabinet(data, proportionValue) {
+      let num = 7 * proportionValue
       let endI = Math.ceil(data.length / num);
       const cabinets = [];
       for (let i = 0; i < endI; i++) {
@@ -569,13 +662,13 @@ export default {
           // obj.name = "cabinet" + (i + 1) + "_" + (j + 1);
           obj.userData.name = "JG-" + (i + 1) + "-" + (j + 1);
           for (let k = 0; k < obj.childrens.length; k++) {
-            obj.childrens[k].userData.devid =
+              obj.childrens[k].userData.devid =
               obj.childrens[k].userData.devid + i + j;
-            obj.childrens[k].userData.pointid =
+              obj.childrens[k].userData.pointid =
               obj.childrens[k].userData.pointid + i + j;
           }
           obj.y = obj.y;
-          obj.x = obj.x + 385 * i;
+          obj.x = obj.x + 490 * i;
           obj.z = obj.z + 105 * j;
           // if(i==2&&j==5){
           //     obj.doors.rotation=[{ direction: 'y', degree: 0.5*Math.PI}];
@@ -737,7 +830,7 @@ export default {
           duration: 5 * 1000,
         });
       } else {
-        console.log("data：", param);
+        // console.log("data：", param);
         let info = "";
         const keys = Object.keys(param);
         Object.values(param).forEach((item, index) => {

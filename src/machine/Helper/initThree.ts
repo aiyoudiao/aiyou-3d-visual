@@ -72,7 +72,11 @@ let tipTimer: any = null
 let tooltipBG = '#ACDEFE'
 let lastEvent: any = null
 
-export default function initThree(props: { domID, dataSet, eventList, sourcePath, vueModel }) {
+export const ops = {
+    proportionValue: 1
+}
+
+export default function initThree(props: { domID, dataSet, eventList, sourcePath, vueModel, proportionValue?: number }) {
 
     // 画布的容器DOM
     domElement = document.getElementById(props.domID)
@@ -90,6 +94,9 @@ export default function initThree(props: { domID, dataSet, eventList, sourcePath
     clock = new THREE.Clock();
     // vue 页面实例
     vueModel = props.vueModel
+
+    // 初始化一些额外配置
+    ops.proportionValue = props.proportionValue || ops.proportionValue
 
 
     if (checkForCompatibility(domElement)) {
@@ -140,9 +147,11 @@ function initStats() {
 }
 
 function initCamera() {
-    camera = new THREE.PerspectiveCamera(45, domElement.offsetWidth / domElement.offsetHeight, 1, 15000)
+    const { proportionValue } = ops
+
+    camera = new THREE.PerspectiveCamera(45, domElement.offsetWidth / domElement.offsetHeight, 1, 15000 * proportionValue)
     camera.name = 'mainCamera';
-    camera.position.set(0, 1000, 1600)
+    camera.position.set(0, 1000 * proportionValue, 1600 * proportionValue)
     camera.up.x = 0;
     camera.up.y = 1;
     camera.up.z = 0;
@@ -212,6 +221,8 @@ function initRenderer() {
 }
 
 function initLight() {
+    const { proportionValue } = ops
+
     /**
          *  light: 方向光
          *  light1: 环境光
@@ -224,7 +235,7 @@ function initLight() {
     // scene.add(light);
 
     const light1 = new THREE.AmbientLight(0x555555)
-    light1.position.set(0, 1200, 0)
+    light1.position.set(0, 1200 * proportionValue, 0)
     scene.add(light1)
 
     /**
@@ -233,7 +244,7 @@ function initLight() {
     const light2 = new THREE.PointLight(0xeeeeee)
     // light2.shadow.camera.near = 1
     // light2.shadow.camera.far = 5000
-    light2.position.set(0, 1200, 0)
+    light2.position.set(0, 1200 * proportionValue, 0)
     // light2.castShadow = true
     scene.add(light2)
 

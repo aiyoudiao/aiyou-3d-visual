@@ -15,11 +15,17 @@ export default class Cabinet {
     parent: MachineRoom
     cabinet: THREE.Group // 每一个机柜是所有机柜部件的组合
     listen: EventHandler1
+    isError = false
 
+    cfg
     serverDevices: Array<ServerDevice> = []
+    ubits = []
+    isDrawingUbit = false
+    isStepServerDevices = false
 
     constructor(cfg, machineRoom: MachineRoom, cloneCabinet?) {
         this.parent = machineRoom
+        this.cfg = cfg
         if (cloneCabinet) {
             this.cabinet = this.clone(cfg, cloneCabinet)
         } else {
@@ -48,6 +54,30 @@ export default class Cabinet {
     private init(item) {
         this.listen = EventHandler1.getEventListen()
         this.drawingCabinet(item)
+    }
+
+    /**
+     * 安装机柜和U位列表
+     */
+    private stepByState () {
+        if (!this.isStepServerDevices) {
+            // while(this.serverDevices.length) {
+            //     addObject(this.serverDevices.pop())
+            // }
+
+            this.serverDevices.forEach(item => {
+                addObject(item.serverDevice)
+            })
+
+            this.isStepServerDevices = true
+            // this.stepServerDevices(this.cfg, this.cabinet)
+        }
+
+        if (!this.isDrawingUbit) {
+            this.drawingUbit(this.cfg, this.cabinet)
+            this.isDrawingUbit = true
+        }
+
     }
 
     bindEvent() {
@@ -132,9 +162,21 @@ export default class Cabinet {
      * @param event 
      */
     threeClickCabinet(target) {
+        this.stepByState()
+
         let SELECTED = target.object
         if (isExists(SELECTED)) {
+            
             flyToCabinet(SELECTED, true)
+
+            // 机柜下的设备全部展示
+            this.serverDevices.forEach(serverDevice => {
+
+                serverDevice.show()
+            })
+
+            // 机柜中所有的U位全部展示
+            this.showUbits()
         }
     }
 
@@ -166,7 +208,25 @@ export default class Cabinet {
         let SELECTED = target.object;
 
         if (SELECTED.name.includes("cabinet") && SELECTED.name.includes("door")) {
-            openCabinetDoor(SELECTED, () => { })
+            openCabinetDoor(SELECTED, (obj) => { 
+                if (obj.doorState === 'close') {
+                    // 机柜下的设备全部隐藏
+                    this.serverDevices.forEach(serverDevice => {
+                        serverDevice.hide()
+                    })
+
+                    this.hideUbits()
+                } else {
+
+                    this.stepByState()
+
+                    // 机柜下的设备全部展示
+                    this.serverDevices.forEach(serverDevice => {
+                        serverDevice.show()
+                    })
+                    this.showUbits()
+                }
+            })
         }
 
         orbitControls.enabled = true;
@@ -210,7 +270,7 @@ export default class Cabinet {
          * 1. 表单字段信息：设备ID、设备名、设备管理ip、设备状态、设备厂商、设备型号、设备所属数据中心、机架的名称、所属机柜的ID、开始U位、结束U位
          * 2. 弹窗状态：是否可见
          */
-        console.log("singleClickCabinet: SELECTED.userData", SELECTED.userData)
+        // console.log("singleClickCabinet: SELECTED.userData", SELECTED.userData)
         const serverDevices = this.serverDevices
         
         if (vueModel.edited) {
@@ -271,17 +331,30 @@ export default class Cabinet {
     }
 
     drawingCabinet(item) {
-        const { size, style, doors, userData, childrens, rotation } = item
+        // const { size, style, doors, userData: {cabinetTotalU}, childrens, rotation } = item
         const emptyCabinet = this.drawingEmptyCabinet(item)
-
-        // this.drawingUbit(item, emptyCabinet)
         this.drawingCabinetDoors(item, emptyCabinet)
+
+
+        
+        this.drawingUbit(item, emptyCabinet)
         this.drawingAlarmInfo(item, emptyCabinet)
-        // this.stepServerDevices(item, emptyCabinet)
-        handleRotaion(item.rotation, emptyCabinet)
         this.cabinet = emptyCabinet
+        this.stepServerDevices(item, emptyCabinet)
+        handleRotaion(item.rotation, emptyCabinet)
         // this.cabinet.visible = false
 
+    }
+
+    hideUbits () {
+        this.ubits.forEach(ubit => {
+            ubit.visible = false
+        })
+    }
+    showUbits () {
+        this.ubits.forEach(ubit => {
+            ubit.visible = true
+        })
     }
 
     drawingEmptyCabinet(item: { uuid?: any; size?: any; style?: any; name?: any; userData?: any; doors?: any; rotation?: any; x?: any; y?: any; z?: any; width?: any; height?: any; childrens?: any }) {
@@ -374,6 +447,19 @@ export default class Cabinet {
         const { uuid, userData: { cabinetTotalU } } = item
         const { thick: sizeThick, width: sizeWidth, height: sizeHeight, depth: sizeDepth } = item.size
 
+        // const cloneUbitObj = this.parent.cloneCabinetUbitMap.find(item => item.key === cabinetTotalU)
+        // // debugger
+        // if (isExists(cloneUbitObj)) {
+        //     const ubits= cloneUbitObj.value
+        //     ubits.forEach(ubitGroup => {
+        //         const ubtObj = ubitGroup.clone(true)
+        //         this.ubits.push(ubtObj)
+        //         emptyCabinet.add(ubtObj)
+        //         addObject(ubtObj)
+        //     })
+
+        //     return
+        // }
 
         const ubitGroup = this.drawingUbitFn(6, 6, 6, cabinetTotalU)
         const [x, y, z] = [
@@ -388,20 +474,28 @@ export default class Cabinet {
         // ubitGroup2.position.set(-40, -124, 35)
 
 
-        emptyCabinet.add(ubitGroup)
-        emptyCabinet.add(ubitGroup2)
-        addObject(ubitGroup, 'object')
-        addObject(ubitGroup2, 'object')
-
 
         const ubitGroup3 = ubitGroup.clone()
         ubitGroup3.position.set(40, - cabinetTotalU * 6 / 2 + 3, 2)
         const ubitGroup4 = ubitGroup.clone()
         ubitGroup4.position.set(-40, - cabinetTotalU * 6 / 2 + 3, 2)
+
+        
+
+        emptyCabinet.add(ubitGroup)
+        emptyCabinet.add(ubitGroup2)
         emptyCabinet.add(ubitGroup3)
         emptyCabinet.add(ubitGroup4)
+
+        this.ubits.push(ubitGroup, ubitGroup2, ubitGroup3, ubitGroup4)
+        this.hideUbits()
+        addObject(ubitGroup, 'object')
+        addObject(ubitGroup2, 'object')
         addObject(ubitGroup3, 'object')
         addObject(ubitGroup4, 'object')
+
+
+        // this.parent.cloneCabinetUbitMap.push({key: cabinetTotalU, value: [ubitGroup.clone(true), ubitGroup2.clone(true), ubitGroup3.clone(true), ubitGroup4.clone(true)]})
     }
 
     drawingUbitFn(width, height, yAxisSpace, count) {
