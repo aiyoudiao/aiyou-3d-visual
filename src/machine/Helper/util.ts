@@ -8,6 +8,8 @@ import { BASE_PATH, dataSet, scene } from "./initThree"
 let timers = {
 }
 
+let identification = {}
+
 /**
  * 判断该对象是否存在
  * @param obj 
@@ -288,6 +290,7 @@ export function setMaterialColor(_objname, _color) {
 
 //添加图片标识
 export function addIdentification(_objname, _obj) {
+
     /*
       {
         name:'test',
@@ -302,20 +305,43 @@ export function addIdentification(_objname, _obj) {
         _fobj = findObject(_objname);
     } else {
         _fobj = _objname
-    }
-    var loader = new THREE.TextureLoader();
-    var texture = loader.load(_obj.imgurl, function () { }, undefined, function () { });
-    var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-    var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.renderOrder = 99
-    sprite.name = _obj.name;
-    sprite.position.x = _fobj.position.x + _obj.position.x;
-    sprite.position.y = _fobj.position.y + _obj.position.y;
-    sprite.position.z = _fobj.position.z + _obj.position.z;
-    if (isExists(_obj.size)) {
-        sprite.scale.set(_obj.size.x, _obj.size.y, _obj.size.z);
+    } 
+
+    if (!identification[_obj.imgurl]) {
+        const loader = new THREE.TextureLoader();
+        loader.load(_obj.imgurl, function (texture) { 
+            texture.needsUpdate = true
+
+            var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            var sprite = new THREE.Sprite(spriteMaterial);
+            initIdentification(sprite)
+            // 做一下缓存
+            identification[_obj.imgurl] = sprite.clone()
+        }, undefined, function (e) { 
+            console.error(e)
+        });
     } else {
-        sprite.scale.set(1, 1, 1);
+        const sprite = identification[_obj.imgurl]
+        initIdentification(sprite)
     }
-    addObject(sprite);
+
+
+
+    function initIdentification(sprite) {
+        // sprite.renderOrder = 99
+        sprite.name = _obj.name;
+        sprite.position.x = _fobj.position.x + _obj.position.x;
+        sprite.position.y = _fobj.position.y + _obj.position.y;
+        sprite.position.z = _fobj.position.z + _obj.position.z;
+        if (isExists(_obj.size)) {
+            sprite.scale.set(_obj.size.x, _obj.size.y, _obj.size.z);
+        } else {
+            sprite.scale.set(1, 1, 1);
+        }
+
+        sprite.matrixAutoUpdate  = false;
+        sprite.updateMatrix();
+        addObject(sprite);
+    }
+   
 }

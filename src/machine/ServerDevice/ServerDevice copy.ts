@@ -1,8 +1,8 @@
 import Cabinet from "../Cabinet/Cabinet"
 import * as THREE from 'three'
-import { mergeModel, handleRotaion } from "../Helper/calc"
+import { mergeModel, handleRotaion, getAreaPageXAndY } from "../Helper/calc"
 import { generateCube, addObject, generateHole, generateGroup, createPlaneGeometry, getTarget, clearHightBox } from '../Helper/core'
-import { findTopObj, generateUUID, isClickModel, isExists } from '../Helper/util'
+import { addIdentification, findTopObj, generateUUID, isClickModel, isExists, setMaterialColor } from '../Helper/util'
 import { dataSet, scene, BASE_PATH, alarmColor, orbitControls, domElement, outlinePass, vueModel } from '../Helper/initThree'
 import { EventHandler1 } from "../Event/Event"
 import { openEquipmentDoor } from "../Helper/action"
@@ -14,50 +14,33 @@ export default class ServerDevice {
     serverDevice: any
     listen: EventHandler1
     parent: Cabinet
+    isError = false
 
-    lastElement: any
-    tipTimer: any
-    tooltipBG: string = '#ACDEFE'
-    lastEvent: any
-    tooltip: HTMLDivElement
+    clickEventIndex: Number
+    hoverEventIndex: Number
+
 
     constructor(cfg, cabinet: Cabinet) {
         this.parent = cabinet
         this.listen = cabinet.listen
 
         this.init(cfg)
-        this.initToolTip()
-        this.bindEvent()
+        // this.hide()
+        this.initErrorDevice()
     }
 
-    initToolTip() {
-        this.tooltip = document.createElement('div');
-        this.tooltip.setAttribute('id', 'tooltip');
-        this.tooltip.style.display = 'none';
-        this.tooltip.style.position = 'absolute';
-        this.tooltip.style.color = "#000";
-        this.tooltip.style.maxWidth = "200px";
-        this.tooltip.style.width = '32px';
-        this.tooltip.style.height = 'auto';
-        this.tooltip.style.lineHeight = "22px";
-        this.tooltip.style.textAlign = "center";
-        this.tooltip.style.padding = "10px";
-        this.tooltip.style.background = this.tooltipBG;
-        this.tooltip.style.opacity = '0.8';
-        this.tooltip.style['border-radius'] = '5px';
-        let tipdiv = document.createElement('div');
-        tipdiv.setAttribute("id", "tipdiv");
-        let tipspan = document.createElement('span');
-        tipspan.style.marginLeft = "50%";
-        tipspan.style.bottom = "-10px";
-        tipspan.style.left = "-10px";
-        tipspan.style.position = "absolute";
-        tipspan.style.borderTop = "10px solid " + this.tooltipBG;
-        tipspan.style.borderLeft = "10px solid transparent";
-        tipspan.style.borderRight = "10px solid transparent";
-        this.tooltip.appendChild(tipspan);
-        this.tooltip.appendChild(tipdiv);
-        domElement.appendChild(this.tooltip);
+
+    show() {
+        // 可见性设置
+        this.serverDevice.visible = true
+        this.bindEvent()
+
+    }
+
+    hide() {
+        // 不可见行设置
+        this.serverDevice.visible = false
+        this.unbindEvent()
     }
 
     init(cfg) {
@@ -71,13 +54,88 @@ export default class ServerDevice {
         let serviceUUID = serverDeviceCfg.uuid || generateUUID()
 
         const newObj = generateCube(serverDeviceCfg)
+
+        const { deviceType } = serverDeviceCfg.userData
+
+        // 当设备类型为虚拟时，就隐藏
+        if (deviceType === '虚拟') {
+            newObj.visible = false
+        }
+
         newObj.userData = serverDeviceCfg.userData
         newObj.userData['equipmentUUID'] = uuid
         newObj.uuid = serviceUUID
         this.serviceUUID = serviceUUID
-        addObject(newObj)
+        newObj.name = serviceUUID
+        newObj.visible = false
+        // addObject(newObj)
 
         this.serverDevice = newObj
+    }
+
+    // 初始化异常设备
+    initErrorDevice() {
+        /**
+         * 1. 遍历当前机柜已有的所有设备
+         * 2. 判断U数是否重叠，如果重叠就把当前设备打上红色标记
+         * 3. 同时给当前机柜的头顶添加上一个黄色的三角标记
+         */
+
+        this.parent.serverDevices.forEach(otherServerDevice => {
+            // 虚拟设备不作为重叠的范畴内
+            const { deviceType } = otherServerDevice.serverDevice.userData
+            if (deviceType === '虚拟') {
+                return
+            }
+
+            if (this.serverDevice === otherServerDevice) {
+                return
+            }
+
+
+            const { startU: oSU, endU: oEU } = otherServerDevice.serverDevice.userData
+
+            const { startU, endU } = this.serverDevice.userData
+            const len = oEU - oSU + 1
+
+            let container = []
+            for (let i = oSU; i < oSU + len; i++) {
+                container.push(i)
+            }
+
+            if (container.includes(startU) || container.includes(endU)) {
+                this.isError = true
+
+            }
+
+            if (this.isError) {
+                var valarmanme = 'equipment_Identification_alarm' + this.serverDevice.userData['equipmentUUID'];
+
+                // 给当前设备打上标记
+                setMaterialColor(this.serverDevice, 0xff0000);
+
+                // 如果机柜已经打上了标记，就不用重复打标记了
+                if (!this.parent.isError) {
+
+                    // 给当前机柜打上标记
+                    var vtreeanme = 'cabinet_Identification_flag' + generateUUID();
+                    const y = this.parent.cabinet.position.y
+                    var errorobj = {
+                        name: vtreeanme,
+                        size: { x: 48, y: 64 },
+                        position: { x: 0, y: y + 32, z: 0 },
+                        // imgurl: BASE_PATH + 'marker1.png'
+                        imgurl: BASE_PATH + 'down.png'
+                    };
+
+                    addIdentification(this.parent.cabinet, errorobj);
+                    this.parent.isError = true
+                }
+
+
+            }
+
+        })
     }
 
     bindEvent() {
@@ -85,8 +143,13 @@ export default class ServerDevice {
         this.bindClickServerDevice()
     }
 
+    unbindEvent() {
+        this.unbindHoverServerDevice()
+        this.unbindClickServerDevice()
+    }
+
     bindHoverServerDevice() {
-        this.listen.receive('hover', (target, event) => {
+        this.hoverEventIndex = this.listen.receive('hover', this.serverDevice.name, (target, event) => {
 
             if (!target) {
                 return
@@ -114,6 +177,10 @@ export default class ServerDevice {
         })
     }
 
+    unbindHoverServerDevice() {
+        this.hoverEventIndex !== undefined && this.listen.delete('hover', this.hoverEventIndex)
+    }
+
 
     hoverServerDevice(targetObj, event) {
         var currentElement = null;
@@ -123,66 +190,53 @@ export default class ServerDevice {
             currentElement = SELECTED;
         }
 
-        clearTimeout(this.tipTimer);
         if (currentElement) {
             let SELECTED = targetObj
             outlinePass.selectedObjects = [SELECTED]
-    
-            vueModel.currentMesh.left = (event.pageX + 10);
-            vueModel.currentMesh.top = (event.pageY + 10);
+            const width = document.getElementById('tan').offsetWidth
+            const height = document.getElementById('tan').offsetHeight
+            // vueModel.currentMesh.left = (event.pageX + 10);
+            // vueModel.currentMesh.top = (event.pageY + 10);
+            const target = getAreaPageXAndY(event, width + 30, height + 80)
+            vueModel.currentMesh.left = target.x;
+            vueModel.currentMesh.top = target.y;
             vueModel.currentMesh.show = true
             vueModel.currentServerDevice.show = true
-            vueModel.currentServerDevice.deviceName = SELECTED.userData.deviceName || '未有数据'
+            vueModel.currentServerDevice.deviceName = SELECTED.userData.deviceName || SELECTED.name || '未有数据'
+
+            // 找出相同的虚拟设备，然后把虚拟设备的信息也一并加入到里面去
+            const visualContainer = []
+            this.parent.serverDevices.filter(otherServerDevice => {
+                // 根据某些情况来判断是否是虚拟设备，比如 起始U位和结束U位 和我当前这台设备一样，同时它的类型为虚拟设备
+
+                const { startU: oSU, endU: oEU, deviceType } = otherServerDevice.serverDevice.userData
+
+                const { startU, endU } = this.serverDevice.userData
+                if (startU === oSU && endU === oEU && deviceType === '虚拟') {
+                    visualContainer.push(otherServerDevice.serverDevice.userData)
+                }
+            })
+
+
+            // vueModel.$set(vueModel, 'currentServerDevice', {
+            //     ...vueModel.currentServerDevice,
+            //     ...SELECTED.userData
+            // })
+            vueModel.$set(vueModel, 'currentServerDevice', {
+                ...vueModel.currentServerDevice,
+                container: [
+                    SELECTED.userData,
+                    ...visualContainer
+                ]
+            })
         }
     }
 
-    // hoverServerDevice(targetObj, event) {
-    //     var currentElement = null;
 
-    //     let SELECTED = targetObj;
-    //     if (SELECTED.name.toString().indexOf("equipment") != -1 || SELECTED.name.toString().indexOf("spriteAlarm") != -1) {
-    //         currentElement = SELECTED;
-    //     }
 
-    //     clearTimeout(this.tipTimer);
-    //     if (currentElement) {
-    //         outlinePass.selectedObjects = [SELECTED]
-    //         this.tipTimer = setTimeout(() => {
-    //             // console.log(currentElement)
-    //             let tipInfo = "";
-    //             if (currentElement.name.toString().indexOf("equipment") != -1) {
-    //                 tipInfo = currentElement.userData.tipInfo;
-    //                 this.tooltip.style.background = this.tooltipBG;
-    //                 this.tooltip.querySelector("span").style.borderTop = "10px solid " + this.tooltipBG;
-    //             }
-    //             if (currentElement.name.toString().indexOf("spriteAlarm") != -1) {
-    //                 // console.log(currentElement)
-    //                 if (currentElement.userData.alarmInfo.length > 0) {
-    //                     let levelArr = [];
-    //                     for (let i = 0; i < currentElement.userData.alarmInfo.length; i++) {
-    //                         levelArr.push(currentElement.userData.alarmInfo[i].level);
-    //                         tipInfo += currentElement.userData.alarmInfo[i].name + currentElement.userData.alarmInfo[i].alarmInfo + "；"
-    //                     }
-    //                     let max = Math.max(...levelArr);
-    //                     this.tooltip.style.background = alarmColor["level" + max];
-    //                     this.tooltip.querySelector("span").style.borderTop = "10px solid " + alarmColor["level" + max];
-    //                 }
-    //             }
-    //             let tiplen = tipInfo.length;
-    //             this.tooltip.querySelector("#tipdiv").innerHTML = tipInfo
-    //             this.tooltip.style.width = tiplen * 15 + "px";
-    //             this.tooltip.style.display = 'block';
-    //             this.tooltip.style.left = (this.lastEvent.pageX - this.tooltip.clientWidth / 2) + 'px';
-    //             this.tooltip.style.top = (this.lastEvent.pageY - this.tooltip.clientHeight - 15) + 'px';
-    //         }, 16.8 * 5);
-    //     }
-
-    //     //设置每次移动时鼠标的事件对象
-    //     this.lastEvent = event;
-    // }
 
     bindClickServerDevice() {
-        this.listen.receive('click', target => {
+        this.clickEventIndex = this.listen.receive('click', this.serverDevice.name, target => {
 
             if (!target) {
                 return
@@ -194,6 +248,10 @@ export default class ServerDevice {
 
             this.clickServerDevice(target)
         })
+    }
+
+    unbindClickServerDevice() {
+        this.clickEventIndex !== undefined && this.listen.delete('click', this.clickEventIndex)
     }
 
     clickServerDevice(target) {
@@ -215,13 +273,6 @@ export default class ServerDevice {
         return target.object === this.serverDevice
     }
 
-    show() {
-        // 可见性设置
-    }
-
-    hide() {
-        // 不可见行设置
-    }
 
     dispose() {
 

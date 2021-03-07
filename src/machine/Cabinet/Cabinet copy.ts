@@ -59,7 +59,7 @@ export default class Cabinet {
     /**
      * 安装机柜和U位列表
      */
-    private stepByState () {
+    private stepByState() {
         if (!this.isStepServerDevices) {
             // while(this.serverDevices.length) {
             //     addObject(this.serverDevices.pop())
@@ -88,7 +88,7 @@ export default class Cabinet {
     }
 
     bindHoverCabinet() {
-        this.listen.receive('hover',  (target, event) => {
+        this.listen.receive('hover', this.cabinet.name, (target, event) => {
 
             if (!target) {
                 return
@@ -129,8 +129,6 @@ export default class Cabinet {
         vueModel.currentMesh.top = target.y;
         vueModel.currentMesh.show = true
         vueModel.currentCabnet.show = true
-        vueModel.currentTab = '机柜信息'
-        vueModel.currentServerDevice.show = false
         vueModel.currentCabnet.name = SELECTED.userData.name
         vueModel.$set(vueModel, 'currentCabnet', {
             ...vueModel.currentCabnet,
@@ -144,7 +142,7 @@ export default class Cabinet {
      * 绑定三击机柜的事件
      */
     bindThreeClickCabinet() {
-        this.listen.receive('threeclick', target => {
+        this.listen.receive('threeclick', this.cabinet.name, target => {
             if (!target) {
                 return
             }
@@ -168,7 +166,7 @@ export default class Cabinet {
 
         let SELECTED = target.object
         if (isExists(SELECTED)) {
-            
+
             flyToCabinet(SELECTED, true)
 
             // 机柜下的设备全部展示
@@ -186,7 +184,7 @@ export default class Cabinet {
      * 绑定双击机柜门的事件
      */
     binDBClickCabinetDoor() {
-        this.listen.receive('dbclick', target => {
+        this.listen.receive('dbclick', this.cabinet.name, target => {
             if (!target) {
                 return
             }
@@ -210,7 +208,7 @@ export default class Cabinet {
         let SELECTED = target.object;
 
         if (SELECTED.name.includes("cabinet") && SELECTED.name.includes("door")) {
-            openCabinetDoor(SELECTED, (obj) => { 
+            openCabinetDoor(SELECTED, (obj) => {
                 if (obj.doorState === 'close') {
                     // 机柜下的设备全部隐藏
                     this.serverDevices.forEach(serverDevice => {
@@ -237,8 +235,8 @@ export default class Cabinet {
     /**
      * 绑定单机机柜门的事件
      */
-    bindSingleClickCabinet () {
-        this.listen.receive('click', target => {
+    bindSingleClickCabinet() {
+        this.listen.receive('click', this.cabinet.name, target => {
             if (!target) {
                 return
             }
@@ -253,11 +251,11 @@ export default class Cabinet {
         })
     }
 
-    sigleClickCabinet (target) {
+    sigleClickCabinet(target) {
         orbitControls.enabled = false;
         let SELECTED = target.object;
         SELECTED = findTopObj('cabinet', SELECTED)
-        
+
         /**
          * 需求；
          * 1. 点击机柜，弹出一个表格，展示当前机柜中所有设备的信息，信息包含两种，一种是已存在的设备U位，一种是空缺的U位
@@ -274,7 +272,7 @@ export default class Cabinet {
          */
         // console.log("singleClickCabinet: SELECTED.userData", SELECTED.userData)
         const serverDevices = this.serverDevices
-        
+
         if (vueModel.edited) {
             vueModel.$set(vueModel, 'recordDeviceUbitDialog', {
                 showOuterVisible: true,
@@ -283,21 +281,15 @@ export default class Cabinet {
                     prev.push(
                         current.serverDevice.userData
                     )
-    
+
                     return prev
                 }, [])
             })
         } else {
             vueModel.$set(vueModel, 'recordDeviceUbitDialog', {
                 showOuterVisible: false,
-                cabinetInfo: SELECTED.userData,
-                serverDeviceInfo: serverDevices.reduce((prev, current) => {
-                    prev.push(
-                        current.serverDevice.userData
-                    )
-    
-                    return prev
-                }, [])
+                cabinetInfo: [],
+                serverDeviceInfo: []
             })
         }
 
@@ -338,25 +330,25 @@ export default class Cabinet {
         this.drawingCabinetDoors(item, emptyCabinet)
 
 
-        
+
         this.drawingUbit(item, emptyCabinet)
         this.drawingAlarmInfo(item, emptyCabinet)
         this.cabinet = emptyCabinet
         this.stepServerDevices(item, emptyCabinet)
         handleRotaion(item.rotation, emptyCabinet)
 
-        emptyCabinet.matrixAutoUpdate  = false;
+        emptyCabinet.matrixAutoUpdate = false;
         emptyCabinet.updateMatrix();
         // this.cabinet.visible = false
 
     }
 
-    hideUbits () {
+    hideUbits() {
         this.ubits.forEach(ubit => {
             ubit.visible = false
         })
     }
-    showUbits () {
+    showUbits() {
         this.ubits.forEach(ubit => {
             ubit.visible = true
         })
@@ -485,7 +477,7 @@ export default class Cabinet {
         const ubitGroup4 = ubitGroup.clone()
         ubitGroup4.position.set(-40, - cabinetTotalU * 6 / 2 + 3, 2)
 
-        
+
 
         emptyCabinet.add(ubitGroup)
         emptyCabinet.add(ubitGroup2)
@@ -494,7 +486,7 @@ export default class Cabinet {
 
         this.ubits.push(ubitGroup, ubitGroup2, ubitGroup3, ubitGroup4)
         this.ubits.forEach(ubit => {
-            ubit.matrixAutoUpdate  = false;
+            ubit.matrixAutoUpdate = false;
             ubit.updateMatrix();
         })
         this.hideUbits()
@@ -740,10 +732,10 @@ export default class Cabinet {
     }
 
     // 重置当前机柜的位置
-    resetCabinet () {}
+    resetCabinet() { }
 
     // 重置当前机柜下，所有设备的位置
-    resetServerDevice () {}
+    resetServerDevice() { }
 
     show() {
         // 可见性设置

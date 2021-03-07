@@ -4,7 +4,7 @@
       <img
         :src="require('@/assets/picture/2.png')"
         alt=""
-        :style="`width: 300px; height: ${height}px; opacity: 1`"
+        :style="{width: 300 + 'px', height: height + 'px', opacity: 1}"
       />
     </div>
     <!-- 下面是详细信息展示 -->
@@ -71,7 +71,7 @@ export default {
   position: relative;
   left: -15px;
   top: -15px;
-  width: 300px;
+  width: 263px;
   height: 400px;
 }
 

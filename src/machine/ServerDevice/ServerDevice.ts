@@ -87,6 +87,10 @@ export default class ServerDevice {
                 return
             }
 
+            if (this === otherServerDevice) {
+                return
+            }
+
 
             const { startU: oSU, endU: oEU } = otherServerDevice.serverDevice.userData
 
@@ -113,7 +117,7 @@ export default class ServerDevice {
                 if (!this.parent.isError) {
 
                     // 给当前机柜打上标记
-                    var vtreeanme = 'cabinet_Identification_flag' + this.parent.cabinet['equipmentUUID'];
+                    var vtreeanme = 'cabinet_Identification_flag' + generateUUID();
                     const y = this.parent.cabinet.position.y
                     var errorobj = {
                         name: vtreeanme,
@@ -197,6 +201,8 @@ export default class ServerDevice {
             vueModel.currentMesh.top = target.y;
             vueModel.currentMesh.show = true
             vueModel.currentServerDevice.show = true
+            vueModel.currentTab = '设备服务器信息'
+            
             vueModel.currentServerDevice.deviceName = SELECTED.userData.deviceName || SELECTED.name || '未有数据'
 
             // 找出相同的虚拟设备，然后把虚拟设备的信息也一并加入到里面去

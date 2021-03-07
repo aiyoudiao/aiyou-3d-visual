@@ -209,7 +209,9 @@ cabinetAndDevice.cabinets.list.forEach(cabinet => {
     const dataCenterName = cabinet.dataCenterName
     
     let startU, endU;
+    // let viisualNum = 2; // 每一个机柜中都有 2 个虚拟设备
     const serverDeviceList = Array(serverDeviceNum).fill(1).map(() => {
+    // const serverDeviceList = Array(serverDeviceNum - viisualNum).fill(1).map(() => {
         startU = startU || Mock.Random.integer(1, 2)
         endU =  startU + Mock.Random.integer(1, 2)
 
@@ -219,7 +221,7 @@ cabinetAndDevice.cabinets.list.forEach(cabinet => {
             deviceIP: Mock.Random.ip(),
             deviceState: '正常',
             deviceManufacturer: Mock.Random.region() + '公司',
-            deviceType: '思科',
+            deviceType: '物理',
             dataCenterName: dataCenterName,
             rankName: Mock.Random.integer(1, 10)+'号机架',
             cabinetID: cabinetID,
@@ -231,6 +233,12 @@ cabinetAndDevice.cabinets.list.forEach(cabinet => {
         return item
     })
 
+    // const visualServerDeviceList = JSON.parse(JSON.stringify(serverDeviceList.slice(serverDeviceList - viisualNum)))
+    // visualServerDeviceList.forEach(visualDevice => {
+    //     visualDevice.deviceType = '虚拟'
+    // })
+
+    // cabinetAndDevice.serverDeviceList.list.push(...serverDeviceList, ...visualServerDeviceList)
     cabinetAndDevice.serverDeviceList.list.push(...serverDeviceList)
 })
 cabinetAndDevice.serverDeviceList.total = cabinetAndDevice.serverDeviceList.list.length

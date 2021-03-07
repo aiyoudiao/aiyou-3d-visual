@@ -32,6 +32,8 @@ export default class MachineRoom {
 
             if (item.objType === 'floor') {
                 const floor = this.drawFloor(item)
+                floor.matrixAutoUpdate  = false;
+                floor.updateMatrix();
                 addObject(floor, 'scene')
             }
 
@@ -138,6 +140,8 @@ export default class MachineRoom {
                     // }
                 });
             }
+            // cube.matrixAutoUpdate  = false;
+            // cube.updateMatrix();
             addObject(cube, 'scene')
         });
     }

@@ -77,15 +77,30 @@
         v-show="currentMesh.show"
       >
         <div style="position: relative">
-          <el-tabs type="border-card">
-            <el-tab-pane label="机柜信息" :disabled="!currentCabnet.show">
+          <el-tabs type="border-card" v-model="currentTab">
+            <el-tab-pane
+              label="机柜信息"
+              name="机柜信息"
+              :disabled="!currentCabnet.show"
+            >
               <panel-box :dataSet="cabinetMesh"></panel-box>
             </el-tab-pane>
             <el-tab-pane
               label="设备服务器信息"
+              name="设备服务器信息"
               :disabled="!currentServerDevice.show"
             >
-              <panel-box v-for="(serverDeviceMesh, index) in serverDeviceMeshList" :dataSet="serverDeviceMesh" :height="430" :key="`serverDeviceMesh-${index}`"></panel-box>
+              <div
+                class="panel-container"
+                :style="`height: ${430}px;overflow-y: auto; overflow-x: hidden;`"
+              >
+                <panel-box
+                  v-for="(serverDeviceMesh, index) in serverDeviceMeshList"
+                  :dataSet="serverDeviceMesh"
+                  :height="430"
+                  :key="`serverDeviceMesh-${index}`"
+                ></panel-box>
+              </div>
             </el-tab-pane>
           </el-tabs>
 
@@ -99,6 +114,7 @@
       </div>
     </div>
 
+    <!-- 显示编辑设备的表单 -->
     <el-dialog
       :title="'机柜：' + recordFormData.cabinetName"
       :visible.sync="recordDeviceUbitDialog.showOuterVisible"
@@ -125,17 +141,25 @@
         >
       </div> -->
     </el-dialog>
+
+    <!-- 显示搜索设备的弹窗 -->
+    <el-drawer title="查询模式" :visible.sync="drawerSearch" :with-header="false" :modal="false" :size="'300px'" :wrapperClosable="false">
+      <div class="search-box">
+      <single-search-list placeholder="请输入机柜ID或者名称" :treeList="cabinetSearchList" @tree-row-click="handleTreeRowClick"></single-search-list>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { Notification, Message, MessageBox } from "element-ui";
 
-import initThree, { scene, dataSet} from "@//machine/Helper/initThree";
+import initThree, { scene, dataSet } from "@//machine/Helper/initThree";
 import MachineRoom from "@/machine/MachineRoom/MachineRoom.ts";
 
 import PanelBox from "./components/PanelBox";
 import RecordForm from "./components/RecordForm";
+import SingleSearchList from './components/SingleSearchList'
 import { getCabinetAndDevice, subCabinetRecordDevice } from "@/api/cabinet3d";
 import genarateOps, { genarateCabinet, getHeightByUnum } from "./project";
 
@@ -155,12 +179,12 @@ import {
   showFlag,
 } from "@/machine/Helper/menuAction";
 
-
 export default {
   name: "MachineRoom",
   components: {
     "panel-box": PanelBox,
     "record-form": RecordForm,
+    'single-search-list': SingleSearchList,
   },
   data() {
     return {
@@ -202,6 +226,13 @@ export default {
         cabinetInfo: {},
         serverDeviceInfo: [],
       },
+      // 当前激活的tab
+      currentTab: "机柜信息",
+
+
+      // 支持机柜搜索的抽屉状态
+      drawerSearch: false,
+      cabinetSearchList: [],
     };
   },
   computed: {
@@ -271,7 +302,7 @@ export default {
     //   });
     // },
 
-        // 设备服务器的网格模型的数据
+    // 设备服务器的网格模型的数据
     serverDeviceMeshList() {
       const meshData = JSON.parse(JSON.stringify(this.currentServerDevice));
       delete meshData.show;
@@ -380,10 +411,10 @@ export default {
         eventList: [],
         sourcePath: undefined,
         vueModel: vueModel,
-        proportionValue: ops.proportionValue
+        proportionValue: ops.proportionValue,
       });
 
-      new MachineRoom(
+      window.machineRoom = new MachineRoom(
         {
           cabinetCfgs: [],
           name: "机房2021",
@@ -405,19 +436,50 @@ export default {
       this.timer = setTimeout(async () => {
         const result = await getCabinetAndDevice(this.machineRoomId);
         const { code, data, message } = result;
-        const { proportionValue, transitionValue } = this.handleProportionAndTransition(data)
-        const ops = genarateOps(proportionValue, transitionValue)
+        const {
+          proportionValue,
+          transitionValue,
+        } = this.handleProportionAndTransition(data);
+        const ops = genarateOps(proportionValue, transitionValue);
 
+        this.initCabinetSearch(data)
         this.handleRequestTitle(data);
         const refectResult = this.handleRequestList(data, proportionValue);
         ops.objects.push(...refectResult);
         const newOps = {
           ...ops,
-          proportionValue, transitionValue 
-        }
+          proportionValue,
+          transitionValue,
+        };
         this.init(newOps);
-
       }, 500);
+    },
+
+    // 初始化机柜查询的信息
+    initCabinetSearch (result) {
+       const { cabinets, serverDeviceList } = result;
+       const list = cabinets.list
+      this.cabinetSearchList = list.reduce((prev, current) => {
+
+        prev.push({
+          id: current.cabinetID,
+          label: current.cabinetName
+        })
+
+        return prev
+      }, [])
+    },
+
+    // 点击树中的每一项
+    handleTreeRowClick (data) {
+      const { id, label } = data
+      const target = window.machineRoom.cabinets.find(item => {
+          return item.cabinet.userData.cabinetName === label
+      })
+
+      target.threeClickCabinet({
+        object: target.cabinet
+      })
     },
 
     // 处理请求结果中的title，生成动态标题数据
@@ -509,7 +571,7 @@ export default {
 
       refectResult = this.sortCabinet(refectResult, proportionValue);
 
-      return refectResult
+      return refectResult;
     },
 
     // 处理请求中的数据，获取机房规模的比例，以及机房分区时，每个区域的偏移值
@@ -518,45 +580,45 @@ export default {
 
       /**
        * 机房动态的成倍扩充的算法
-       * 
+       *
        *  默认装 21
        *  超过 21 机房面积会扩充 4 倍 ， 但排列是 2倍
        *  超过 2倍 * 3排 * 14 个 = 84 , 可以额外 多一排
        * 2倍 * 3排 * 2倍 * 7个
-       *  
+       *
        * 超过 84 面积会扩充 6倍， 但排列是 3 倍
        *  超过 3倍 * 3排 * 21 个 = 189，可以额外 多加二排
        *  3倍 * 3排 * 3被 * 7个
-       * 
+       *
        * 超过 189 面积扩充 8 倍， 排列时 4 倍
        *  超过 4倍 * 3 排 * 28 个 = 336， 可以额外 多加三排
        * 4倍 * 3排 * 4倍 * 7个
        */
 
-      // 正常上限是 n^2 * (3 * 7) 
-      // 最大上限是 n^2 * (3 * 7) + [(n - 1) * n * 7] 
+      // 正常上限是 n^2 * (3 * 7)
+      // 最大上限是 n^2 * (3 * 7) + [(n - 1) * n * 7]
       // 但最大上线 仅仅是刚好放完这么多机柜，可以少放一排来让机房更美观
-
 
       /**
        * 目前最大扩充上限为1701
        */
-      const nList = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      const nList = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-      const proportionValue = nList.find(n => {
+      const proportionValue = nList.find((n) => {
+        const minM = n - 1;
+        const maxM = n;
 
-        const minM = n - 1
-        const maxM = n
+        const minValue = Math.pow(minM, 2) * (3 * 7);
+        const maxValue = Math.pow(maxM, 2) * (3 * 7);
 
-        const minValue = Math.pow(minM, 2) * (3 * 7)
-        const maxValue = Math.pow(maxM, 2) * (3 * 7) 
-
-        return cabinets.list.length > minValue && cabinets.list.length <= maxValue
-      })
+        return (
+          cabinets.list.length > minValue && cabinets.list.length <= maxValue
+        );
+      });
 
       return {
-        proportionValue
-      }
+        proportionValue,
+      };
     },
 
     // 动态生成绘制机柜的配置数据
@@ -574,7 +636,9 @@ export default {
           children,
         } = cabinetConf;
 
-        const cabinetTempObj = JSON.parse(JSON.stringify(genarateCabinet(proportionValue)));
+        const cabinetTempObj = JSON.parse(
+          JSON.stringify(genarateCabinet(proportionValue))
+        );
         cabinets.push(cabinetTempObj);
         cabinetTempObj.name = "cabinet" + "_" + cabinetID;
         this.cabinetList.push(cabinetTempObj.name);
@@ -648,7 +712,7 @@ export default {
 
     // 对机柜的数据进行排序，防止重叠在一起
     sortCabinet(data, proportionValue) {
-      let num = 7 * proportionValue
+      let num = 7 * proportionValue;
       let endI = Math.ceil(data.length / num);
       const cabinets = [];
       for (let i = 0; i < endI; i++) {
@@ -662,9 +726,9 @@ export default {
           // obj.name = "cabinet" + (i + 1) + "_" + (j + 1);
           obj.userData.name = "JG-" + (i + 1) + "-" + (j + 1);
           for (let k = 0; k < obj.childrens.length; k++) {
-              obj.childrens[k].userData.devid =
+            obj.childrens[k].userData.devid =
               obj.childrens[k].userData.devid + i + j;
-              obj.childrens[k].userData.pointid =
+            obj.childrens[k].userData.pointid =
               obj.childrens[k].userData.pointid + i + j;
           }
           obj.y = obj.y;
@@ -699,6 +763,7 @@ export default {
         "报警管理",
         "机柜加标识",
         "编辑模式",
+        "查询模式",
       ];
       menus = menus
         .map((item) => {
@@ -807,6 +872,11 @@ export default {
             this.edited = !this.edited;
           }
           break;
+        case "查询模式":
+          {
+            this.drawerSearch = !this.drawerSearch;
+          }
+          break;
         default:
           {
           }
@@ -867,6 +937,11 @@ body {
 .machine-room {
   width: 100%;
   height: 100%;
+
+  .el-drawer__wrapper {
+    left: calc(100% - 300px);
+  }
+
   .btn-group {
     position: fixed;
     right: 0px;
@@ -883,6 +958,10 @@ body {
         color: #b1dcff;
       }
     }
+  }
+
+  .search-box {
+    padding: 10px;
   }
 }
 
@@ -922,6 +1001,29 @@ body {
   padding: 15px;
   height: 100%;
 }
+
+// ::-webkit-scrollbar {
+//     width: 6px;
+//     height: 6px;
+//   }
+//   ::-webkit-scrollbar-track {
+//     width: 6px;
+//     background: rgba(#101f1c, 0.1);
+//     -webkit-border-radius: 2em;
+//     -moz-border-radius: 2em;
+//     border-radius: 2em;
+//   }
+//   ::-webkit-scrollbar-thumb {
+//     background-color: rgba(#101f1c, 0.5);
+//     background-clip: padding-box;
+//     min-height: 28px;
+//     -webkit-border-radius: 2em;
+//     -moz-border-radius: 2em;
+//     border-radius: 2em;
+//   }
+//   ::-webkit-scrollbar-thumb:hover {
+//     background-color: rgba(#101f1c, 1);
+//   }
 
 [v-cloak] {
   display: none;

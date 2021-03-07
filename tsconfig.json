@@ -15,5 +15,9 @@
     "baseUrl": "."
   },
 
-  "exclude": ["./src/views/MachineRoom-old-2021-02-16/*"] 
+  "exclude": [
+    "./src/views/MachineRoom-old-2021-02-16/*",
+    "./src/machine/Cabinet/Cabinet copy.ts",
+    "./src/machine/ServerDevice/ServerDevice copy.ts",
+  ] 
 }
