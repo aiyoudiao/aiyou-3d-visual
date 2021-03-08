@@ -718,8 +718,11 @@ export default class Cabinet {
             let equipmentUUID = []
             const { x, y, z, rotation = null } = item
             childrens.forEach((serverDeviceCfg, index) => {
+                debugger
                 serverDeviceCfg.x = x
-                serverDeviceCfg.y = serverDeviceCfg.y + floorHeight + (y - (sizeHeight - 2 * sizeThick) / 2)
+                // serverDeviceCfg.y = y - sizeHeight / 2 - sizeThick / 2 + floorHeight / 2  + serverDeviceCfg.y * 2
+                serverDeviceCfg.y = serverDeviceCfg.y + sizeThick + serverDeviceCfg.height / 2;
+                // serverDeviceCfg.y = serverDeviceCfg.y + floorHeight + (y - (sizeHeight - 2 * sizeThick) / 2)
                 serverDeviceCfg.z = z
                 serverDeviceCfg.rotation = rotation
 

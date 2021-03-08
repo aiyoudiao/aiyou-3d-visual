@@ -180,7 +180,6 @@ export default class ServerDevice {
         this.hoverEventIndex !== undefined && this.listen.delete('hover', this.hoverEventIndex)
     }
 
-
     hoverServerDevice(targetObj, event) {
         var currentElement = null;
 
@@ -232,9 +231,6 @@ export default class ServerDevice {
             })
         }
     }
-
-
-
 
     bindClickServerDevice() {
         this.clickEventIndex = this.listen.receive('click', target => {

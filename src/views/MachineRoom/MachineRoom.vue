@@ -255,6 +255,9 @@ export default {
             content: meshData[key],
             style: {},
           };
+        } else if (key === '') {
+          // TODO: 机柜利用率使用百分比展示，处理JS中的进度丢失问题，保留小数点后两位
+          // NOTE: (cabietRate * 100).toFixed(2) + '%'
         } else {
           result = {
             vip: false,
@@ -480,6 +483,10 @@ export default {
       target.threeClickCabinet({
         object: target.cabinet
       })
+      target.hoverCabinet(target.cabinet, {
+        pageX: document.body.offsetWidth / 2,
+        pageY: document.body.offsetHeight / 3
+      })
     },
 
     // 处理请求结果中的title，生成动态标题数据
@@ -683,7 +690,7 @@ export default {
             endU,
           } = device;
 
-          temp.height = getHeightByUnum(endU - startU, uBitLength);
+          temp.height = getHeightByUnum(endU - startU + 1, uBitLength);
           temp.y = getHeightByUnum(startU, uBitLength);
           cabinetTempObj.childrens.push(temp);
 
