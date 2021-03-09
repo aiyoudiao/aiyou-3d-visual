@@ -31,6 +31,14 @@ export default class ServerDevice {
 
 
     show() {
+        const { deviceType } = this.serverDevice.userData
+        // 当设备类型为虚拟时，就隐藏
+        if (deviceType === '虚拟') {
+            this.serverDevice.visible = false
+            return
+        } 
+
+
         // 可见性设置
         this.serverDevice.visible = true
         this.bindEvent()
@@ -74,6 +82,14 @@ export default class ServerDevice {
 
     // 初始化异常设备
     initErrorDevice() {
+
+        const { deviceType } = this.serverDevice.userData
+        // 当设备类型为虚拟时，就隐藏
+        if (deviceType === '虚拟') {
+            this.serverDevice.visible = false
+            return
+        } 
+
         /**
          * 1. 遍历当前机柜已有的所有设备
          * 2. 判断U数是否重叠，如果重叠就把当前设备打上红色标记

@@ -347,6 +347,8 @@ export default class Cabinet {
 
         emptyCabinet.matrixAutoUpdate  = false;
         emptyCabinet.updateMatrix();
+
+        console.log('emptyCabinet', emptyCabinet)
         // this.cabinet.visible = false
 
     }
@@ -544,6 +546,7 @@ export default class Cabinet {
             let geometry = new THREE.PlaneGeometry(width, height); //矩形平面
             let textureLoader = new THREE.TextureLoader();
             const texture: THREE.Texture = textureLoader.load(BASE_PATH + '5EDB1B5608A4A1A95FB81C93F960CDA3.jpg')
+            texture.needsUpdate = true
 
             let material = new THREE.MeshLambertMaterial({
                 // color: 0x0000ff,
