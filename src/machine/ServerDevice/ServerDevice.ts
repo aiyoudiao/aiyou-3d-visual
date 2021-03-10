@@ -86,7 +86,7 @@ export default class ServerDevice {
         const { deviceType } = this.serverDevice.userData
         // 当设备类型为虚拟时，就隐藏
         if (deviceType === '虚拟') {
-            this.serverDevice.visible = false
+            this.serverDevice.visible = false 
             return
         } 
 
