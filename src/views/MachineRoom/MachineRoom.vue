@@ -143,9 +143,20 @@
     </el-dialog>
 
     <!-- 显示搜索设备的弹窗 -->
-    <el-drawer title="查询模式" :visible.sync="drawerSearch" :with-header="false" :modal="false" :size="'300px'" :wrapperClosable="false">
+    <el-drawer
+      title="查询模式"
+      :visible.sync="drawerSearch"
+      :with-header="false"
+      :modal="false"
+      :size="'300px'"
+      :wrapperClosable="false"
+    >
       <div class="search-box">
-      <single-search-list placeholder="请输入机柜ID或者名称" :treeList="cabinetSearchList" @tree-row-click="handleTreeRowClick"></single-search-list>
+        <single-search-list
+          placeholder="请输入机柜ID或者名称"
+          :treeList="cabinetSearchList"
+          @tree-row-click="handleTreeRowClick"
+        ></single-search-list>
       </div>
     </el-drawer>
   </div>
@@ -159,32 +170,19 @@ import MachineRoom from "@/machine/MachineRoom/MachineRoom.ts";
 
 import PanelBox from "./components/PanelBox";
 import RecordForm from "./components/RecordForm";
-import SingleSearchList from './components/SingleSearchList'
+import SingleSearchList from "./components/SingleSearchList";
 import { getCabinetAndDevice, subCabinetRecordDevice } from "@/api/cabinet3d";
-import genarateOps, { genarateCabinet, getHeightByUnum } from "./project";
+import genarateOps, { genarateCabinet, getHeightByUnum } from "./MachineRoom.conf";
+import { genarateMenuList, handleMenuItemAction, dynamicGenarateCabinetConfs, handleCabinetsPosition, dynamicCalcMahineRoomLayoutProportionValue } from './MachineRoom.action'
 
-import {
-  senceReset,
-  showCabinetUsage,
-  showcabinetSpace,
-  showConnection,
-  showTemperature,
-  showAir,
-  showSmoke,
-  showWater,
-  showSecurity,
-  showPower,
-  showPerson,
-  showAlarm,
-  showFlag,
-} from "@/machine/Helper/menuAction";
+
 
 export default {
   name: "MachineRoom",
   components: {
     "panel-box": PanelBox,
     "record-form": RecordForm,
-    'single-search-list': SingleSearchList,
+    "single-search-list": SingleSearchList,
   },
   data() {
     return {
@@ -229,10 +227,12 @@ export default {
       // 当前激活的tab
       currentTab: "机柜信息",
 
-
       // 支持机柜搜索的抽屉状态
       drawerSearch: false,
       cabinetSearchList: [],
+
+      // 编辑机房的操作
+      editMachineRoom: false,
     };
   },
   computed: {
@@ -255,7 +255,7 @@ export default {
             content: meshData[key],
             style: {},
           };
-        } else if (key === '') {
+        } else if (key === "") {
           // TODO: 机柜利用率使用百分比展示，处理JS中的进度丢失问题，保留小数点后两位
           // NOTE: (cabietRate * 100).toFixed(2) + '%'
         } else {
@@ -270,40 +270,6 @@ export default {
         return result;
       });
     },
-
-    // 设备服务器的网格模型的数据
-    // serverDeviceMesh() {
-    //   const meshData = JSON.parse(JSON.stringify(this.currentServerDevice));
-    //   delete meshData.show;
-
-    //   const serverDeviceColumn = JSON.parse(
-    //     JSON.stringify(this.serverDeviceColumn)
-    //   );
-    //   const keys = Object.keys(serverDeviceColumn);
-    //   const values = Object.values(serverDeviceColumn);
-
-    //   return values.map((key, index) => {
-    //     let result;
-
-    //     if (index === 0) {
-    //       result = {
-    //         vip: true,
-    //         label: keys[index],
-    //         content: meshData[key],
-    //         style: {},
-    //       };
-    //     } else {
-    //       result = {
-    //         vip: false,
-    //         label: keys[index],
-    //         content: meshData[key],
-    //         style: {},
-    //       };
-    //     }
-
-    //     return result;
-    //   });
-    // },
 
     // 设备服务器的网格模型的数据
     serverDeviceMeshList() {
@@ -407,12 +373,14 @@ export default {
       const vueModel = this;
       // console.log("mounted@vueModel", vueModel);
       // console.log("ops.objects", ops.objects);
+      if (__webpack_public_path__ === '/') {
 
+      }
       initThree({
         domID: "three-app-dom",
         dataSet: [],
         eventList: [],
-        sourcePath: undefined,
+        sourcePath: __webpack_public_path__ === '/' ? undefined : __webpack_public_path__ + '/static/three.js/images/',
         vueModel: vueModel,
         proportionValue: ops.proportionValue,
       });
@@ -442,10 +410,10 @@ export default {
         const {
           proportionValue,
           transitionValue,
-        } = this.handleProportionAndTransition(data);
+        } = dynamicCalcMahineRoomLayoutProportionValue.call(this, data);
         const ops = genarateOps(proportionValue, transitionValue);
 
-        this.initCabinetSearch(data)
+        this.initCabinetSearch(data);
         this.handleRequestTitle(data);
         const refectResult = this.handleRequestList(data, proportionValue);
         ops.objects.push(...refectResult);
@@ -459,34 +427,33 @@ export default {
     },
 
     // 初始化机柜查询的信息
-    initCabinetSearch (result) {
-       const { cabinets, serverDeviceList } = result;
-       const list = cabinets.list
+    initCabinetSearch(result) {
+      const { cabinets, serverDeviceList } = result;
+      const list = cabinets.list;
       this.cabinetSearchList = list.reduce((prev, current) => {
-
         prev.push({
           id: current.cabinetID,
-          label: current.cabinetName
-        })
+          label: current.cabinetName,
+        });
 
-        return prev
-      }, [])
+        return prev;
+      }, []);
     },
 
     // 点击树中的每一项
-    handleTreeRowClick (data) {
-      const { id, label } = data
-      const target = window.machineRoom.cabinets.find(item => {
-          return item.cabinet.userData.cabinetName === label
-      })
+    handleTreeRowClick(data) {
+      const { id, label } = data;
+      const target = window.machineRoom.cabinets.find((item) => {
+        return item.cabinet.userData.cabinetName === label;
+      });
 
       target.threeClickCabinet({
-        object: target.cabinet
-      })
+        object: target.cabinet,
+      });
       target.hoverCabinet(target.cabinet, {
         pageX: document.body.offsetWidth / 2,
-        pageY: document.body.offsetHeight / 3
-      })
+        pageY: document.body.offsetHeight / 3,
+      });
     },
 
     // 处理请求结果中的title，生成动态标题数据
@@ -581,314 +548,26 @@ export default {
       return refectResult;
     },
 
-    // 处理请求中的数据，获取机房规模的比例，以及机房分区时，每个区域的偏移值
-    handleProportionAndTransition(result) {
-      const { cabinets, serverDeviceList } = result;
-
-      /**
-       * 机房动态的成倍扩充的算法
-       *
-       *  默认装 21
-       *  超过 21 机房面积会扩充 4 倍 ， 但排列是 2倍
-       *  超过 2倍 * 3排 * 14 个 = 84 , 可以额外 多一排
-       * 2倍 * 3排 * 2倍 * 7个
-       *
-       * 超过 84 面积会扩充 6倍， 但排列是 3 倍
-       *  超过 3倍 * 3排 * 21 个 = 189，可以额外 多加二排
-       *  3倍 * 3排 * 3被 * 7个
-       *
-       * 超过 189 面积扩充 8 倍， 排列时 4 倍
-       *  超过 4倍 * 3 排 * 28 个 = 336， 可以额外 多加三排
-       * 4倍 * 3排 * 4倍 * 7个
-       */
-
-      // 正常上限是 n^2 * (3 * 7)
-      // 最大上限是 n^2 * (3 * 7) + [(n - 1) * n * 7]
-      // 但最大上线 仅仅是刚好放完这么多机柜，可以少放一排来让机房更美观
-
-      /**
-       * 目前最大扩充上限为1701
-       */
-      const nList = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-      const proportionValue = nList.find((n) => {
-        const minM = n - 1;
-        const maxM = n;
-
-        const minValue = Math.pow(minM, 2) * (3 * 7);
-        const maxValue = Math.pow(maxM, 2) * (3 * 7);
-
-        return (
-          cabinets.list.length > minValue && cabinets.list.length <= maxValue
-        );
-      });
-
-      return {
-        proportionValue,
-      };
-    },
-
     // 动态生成绘制机柜的配置数据
     refactCabinet(data, proportionValue) {
-      let cabinets = [];
-      data.forEach((cabinetConf) => {
-        const {
-          cabinetID,
-          cabinetRate,
-          cabinetTotalU,
-          uBitLength,
-          cabinetName,
-          dataCenterName,
-          machineRoomName,
-          children,
-        } = cabinetConf;
-
-        const cabinetTempObj = JSON.parse(
-          JSON.stringify(genarateCabinet(proportionValue))
-        );
-        cabinets.push(cabinetTempObj);
-        cabinetTempObj.name = "cabinet" + "_" + cabinetID;
-        this.cabinetList.push(cabinetTempObj.name);
-
-        /**
-         * 1. 处理 cabinet中size的height
-         * 2. 处理 cabinet中 y
-         * 3. 处理 cabinet 中的 childrens
-         *    - 处理 serverDevice的 height
-         *    - 处理 serverDevice的 y
-         */
-
-        const sizeHeight = getHeightByUnum(cabinetTotalU, uBitLength);
-        cabinetTempObj.size.height = sizeHeight + 4;
-        cabinetTempObj.y = sizeHeight / 2 - 2;
-        cabinetTempObj.userData = {
-          ...cabinetTempObj.userData,
-          cabinetID,
-          cabinetRate,
-          cabinetTotalU,
-          uBitLength,
-          cabinetName,
-          dataCenterName,
-          machineRoomName,
-        };
-
-        const serverdeviceTempObj = cabinetTempObj.childrens.pop();
-
-        children.forEach((device) => {
-          const temp = JSON.parse(JSON.stringify(serverdeviceTempObj));
-          const {
-            cabinetID,
-            deviceID,
-            deviceName,
-            deviceIP,
-            deviceState,
-            deviceManufacturer,
-            deviceType,
-            dataCenterName,
-            rankName,
-            startU,
-            endU,
-          } = device;
-
-          temp.height = getHeightByUnum(endU - startU + 1, uBitLength);
-          temp.y = getHeightByUnum(startU, uBitLength);
-          cabinetTempObj.childrens.push(temp);
-
-          temp.name = "equipment_server_" + deviceID;
-          this.serverDeviceList.push(temp.name);
-
-          temp.userData = {
-            ...temp.userData,
-            cabinetID,
-            deviceID,
-            deviceName,
-            deviceIP,
-            deviceState,
-            deviceManufacturer,
-            deviceType,
-            dataCenterName,
-            rankName,
-            startU,
-            endU,
-          };
-        });
-      });
-
+      const cabinets = dynamicGenarateCabinetConfs.call(this, data, proportionValue)
       return cabinets;
     },
 
     // 对机柜的数据进行排序，防止重叠在一起
     sortCabinet(data, proportionValue) {
-      let num = 7 * proportionValue;
-      let endI = Math.ceil(data.length / num);
-      const cabinets = [];
-      for (let i = 0; i < endI; i++) {
-        let endJ = num;
-        if (data.length - i * num < endJ) {
-          endJ = data.length - i * num;
-        }
-
-        for (let j = 0; j < endJ; j++) {
-          let obj = data[i * num + j];
-          // obj.name = "cabinet" + (i + 1) + "_" + (j + 1);
-          obj.userData.name = "JG-" + (i + 1) + "-" + (j + 1);
-          for (let k = 0; k < obj.childrens.length; k++) {
-            obj.childrens[k].userData.devid =
-              obj.childrens[k].userData.devid + i + j;
-            obj.childrens[k].userData.pointid =
-              obj.childrens[k].userData.pointid + i + j;
-          }
-          obj.y = obj.y;
-          obj.x = obj.x + 490 * i;
-          obj.z = obj.z + 105 * j;
-          // if(i==2&&j==5){
-          //     obj.doors.rotation=[{ direction: 'y', degree: 0.5*Math.PI}];
-          // }
-
-          // obj.rotation=[{ direction: 'y', degree: 1*Math.PI}];
-          cabinets.push(obj);
-        }
-      }
-
+      const cabinets = handleCabinetsPosition.call(this, data, proportionValue)
       return cabinets;
     },
 
     // 初始化右上角的菜单
     initMenu() {
-      let menus = [
-        "场景复位",
-        "管道流速管理",
-        "温度监控",
-        "机柜利用率",
-        "空间利用率",
-        "空调风向",
-        "烟雾监测",
-        "漏水监测",
-        "防盗监测",
-        "供电电缆",
-        "告警巡航",
-        "报警管理",
-        "机柜加标识",
-        "编辑模式",
-        "查询模式",
-      ];
-      menus = menus
-        .map((item) => {
-          return {
-            label: item,
-            content: [],
-            size: "mini",
-            disabled: false,
-            type: "el-checkbox",
-          };
-        })
-        .map((item) => {
-          // if (["场景复位"].includes(item.label)) {
-          //   item.type = "el-checkbox-button";
-          // }
-
-          return item;
-        });
-
-      this.eventBtns = menus;
+      this.eventBtns = genarateMenuList.call(this, void 0);
     },
 
     // 处理右上角菜单的点击事件
     handleBtnGroupSelect(item) {
-      switch (item.label) {
-        case "场景复位":
-          {
-            senceReset();
-            item.content.pop();
-          }
-          break;
-        case "管道流速管理":
-          {
-            const show = item.content.length > 0;
-            showConnection(show, this.serverDeviceList);
-          }
-          break;
-        case "温度监控":
-          {
-            const show = item.content.length > 0;
-            showTemperature(show);
-          }
-          break;
-        case "机柜利用率":
-          {
-            const show = item.content.length > 0;
-            showCabinetUsage(show);
-          }
-          break;
-        case "空间利用率":
-          {
-            const show = item.content.length > 0;
-            showcabinetSpace(show);
-          }
-          break;
-        case "空调风向":
-          {
-            const show = item.content.length > 0;
-            showAir(show);
-          }
-          break;
-        case "烟雾监测":
-          {
-            const show = item.content.length > 0;
-            showSmoke(show);
-          }
-          break;
-        case "漏水监测":
-          {
-            const show = item.content.length > 0;
-            showWater(show);
-          }
-          break;
-        case "防盗监测":
-          {
-            const show = item.content.length > 0;
-            showSecurity(show);
-          }
-          break;
-        case "供电电缆":
-          {
-            const show = item.content.length > 0;
-            showPower(show);
-          }
-          break;
-        case "告警巡航":
-          {
-            const show = item.content.length > 0;
-            showPerson(show);
-          }
-          break;
-        case "报警管理":
-          {
-            const show = item.content.length > 0;
-            showAlarm(show, this.serverDeviceList);
-          }
-          break;
-        case "机柜加标识":
-          {
-            const show = item.content.length > 0;
-            showFlag(show, this.cabinetList);
-          }
-          break;
-        case "编辑模式":
-          {
-            this.edited = !this.edited;
-          }
-          break;
-        case "查询模式":
-          {
-            this.drawerSearch = !this.drawerSearch;
-          }
-          break;
-        default:
-          {
-          }
-          break;
-      }
+      handleMenuItemAction.call(this, item)
     },
 
     // 处理机柜的设备数据录入
@@ -931,6 +610,31 @@ export default {
   async created() {
     await this.requestCabinetAndDevice();
   },
+
+  destroyed () {
+    scene.children.forEach(item => {
+      dispose(item)
+    })
+
+    window.location.reload(true)
+
+    function dispose(mesh) {
+      if (mesh.children.length) {
+        mesh.children.forEach(subMesh => dispose(subMesh))
+      }
+
+      if (mesh.geometry && mesh.geometry.dispose) {
+        mesh.geometry.dispose()
+      }
+
+      if (mesh.material && mesh.material.dispose) {
+        mesh.material.dispose()
+      }
+      
+      
+      mesh = null
+    }
+  }
 };
 </script>
 
@@ -943,7 +647,7 @@ body {
 
 .machine-room {
   width: 100%;
-  height: 100%;
+  height: 100vh;//100%;
 
   .el-drawer__wrapper {
     left: calc(100% - 300px);

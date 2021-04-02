@@ -2,7 +2,7 @@ import Cabinet from "../Cabinet/Cabinet"
 import * as THREE from 'three'
 import { mergeModel, handleRotaion, getAreaPageXAndY } from "../Helper/calc"
 import { generateCube, addObject, generateHole, generateGroup, createPlaneGeometry, getTarget, clearHightBox } from '../Helper/core'
-import { addIdentification, findTopObj, generateUUID, isClickModel, isExists, setMaterialColor } from '../Helper/util'
+import { addIdentification, findObject, findTopObj, generateUUID, isClickModel, isExists, setMaterialColor } from '../Helper/util'
 import { dataSet, scene, BASE_PATH, alarmColor, orbitControls, domElement, outlinePass, vueModel } from '../Helper/initThree'
 import { EventHandler1 } from "../Event/Event"
 import { openEquipmentDoor } from "../Helper/action"
@@ -15,16 +15,21 @@ export default class ServerDevice {
     listen: EventHandler1
     parent: Cabinet
     isError = false
+    errorFlagName: string
 
     clickEventIndex: Number
     hoverEventIndex: Number
 
 
-    constructor(cfg, cabinet: Cabinet) {
+    constructor(cfg, cabinet: Cabinet, cloneServerDevice?) {
         this.parent = cabinet
         this.listen = cabinet.listen
 
+        // if (cloneServerDevice) {
+        //     this.clone(cfg, cloneServerDevice)
+        // } else {
         this.init(cfg)
+        // }
         // this.hide()
         this.initErrorDevice()
     }
@@ -80,6 +85,34 @@ export default class ServerDevice {
         this.serverDevice = newObj
     }
 
+    clone (item, cloneServerDevice) {
+        const {
+            serverDeviceCfg,
+            uuid,
+        } = item
+
+        const { x, y, z } = serverDeviceCfg
+
+        let serviceUUID = serverDeviceCfg.uuid || generateUUID()
+
+        const newObj = cloneServerDevice.clone()
+        this.serverDevice = newObj
+        newObj.position.set(x, y, z)
+        const { deviceType } = serverDeviceCfg.userData
+
+        // 当设备类型为虚拟时，就隐藏
+        if (deviceType === '虚拟') {
+            newObj.visible = false
+        }
+
+        newObj.userData = serverDeviceCfg.userData
+        newObj.userData['equipmentUUID'] = uuid
+        newObj.uuid = serviceUUID
+        this.serviceUUID = serviceUUID
+        newObj.visible = false
+
+    }
+
     // 初始化异常设备
     initErrorDevice() {
 
@@ -133,10 +166,10 @@ export default class ServerDevice {
                 if (!this.parent.isError) {
 
                     // 给当前机柜打上标记
-                    var vtreeanme = 'cabinet_Identification_flag' + generateUUID();
+                    this.errorFlagName = 'cabinet_Identification_flag' + generateUUID();
                     const y = this.parent.cabinet.position.y
                     var errorobj = {
-                        name: vtreeanme,
+                        name: this.errorFlagName,
                         size: { x: 48, y: 64 },
                         position: { x: 0, y: y + 32, z: 0 },
                         // imgurl: BASE_PATH + 'marker1.png'
@@ -146,11 +179,25 @@ export default class ServerDevice {
                     addIdentification(this.parent.cabinet, errorobj);
                     this.parent.isError = true
                 }
-
-
             }
-
         })
+    }
+
+    // 重置异常标识flag的位置
+    resetErrorFlag () {
+        if (!this.parent.isError) {
+            return
+        }
+
+        const errorSprite = findObject(this.errorFlagName)
+
+        if (!errorSprite) {
+            return
+        }
+
+        errorSprite.position.x = this.parent.cabinet.position.x
+        errorSprite.position.y = this.parent.cabinet.position.y * 2 + 32
+        errorSprite.position.z = this.parent.cabinet.position.z
     }
 
     bindEvent() {

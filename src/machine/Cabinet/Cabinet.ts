@@ -27,16 +27,20 @@ export default class Cabinet {
         this.parent = machineRoom
         this.cfg = cfg
         if (cloneCabinet) {
-            this.cabinet = this.clone(cfg, cloneCabinet)
+            this.clone(cfg, cloneCabinet)
         } else {
             this.init(cfg)
         }
         this.bindEvent()
+        // console.log(this.cabinet.name, this.cabinet)
     }
 
     private clone(item, mainCabinet) {
         this.listen = EventHandler1.getEventListen()
-        const cabinet = mainCabinet.clone()
+        const cabinet = mainCabinet.clone(true)
+        this.cabinet = cabinet
+        cabinet.children.splice(1, 1)
+        cabinet.children.pop()
 
         const { x = 0, y = 0, z = 0 } = item
         const floorHeight = 10
@@ -47,8 +51,18 @@ export default class Cabinet {
         cabinet.name = item.name
         cabinet.uuid = generateUUID()
         cabinet.userData = item.userData || { name: item.name, alarmInfo: [] }
+        addObject(cabinet, 'object')
 
-        return cabinet
+        this.drawingCabinetDoors(item, cabinet)
+
+
+
+        // this.drawingUbit(item, cabinet)
+        this.drawingAlarmInfo(item, cabinet)
+        // this.cabinet = cabinet
+        this.stepServerDevices(item, cabinet)
+        // handleRotaion(item.rotation, cabinet)
+
     }
 
     private init(item) {
@@ -59,7 +73,7 @@ export default class Cabinet {
     /**
      * 安装机柜和U位列表
      */
-    private stepByState () {
+    private stepByState() {
         if (!this.isStepServerDevices) {
             // while(this.serverDevices.length) {
             //     addObject(this.serverDevices.pop())
@@ -88,7 +102,7 @@ export default class Cabinet {
     }
 
     bindHoverCabinet() {
-        this.listen.receive('hover',  (target, event) => {
+        this.listen.receive('hover', (target, event) => {
 
             if (!target) {
                 return
@@ -168,7 +182,13 @@ export default class Cabinet {
 
         let SELECTED = target.object
         if (isExists(SELECTED)) {
-            
+            // 先关别的门
+            this.closeOtherDoor()
+            // 再将自己保存进去
+            if (!this.parent.openDoorCabinets.includes(this)) {
+                this.parent.openDoorCabinets.push(this)
+            }
+
             flyToCabinet(SELECTED, true)
 
             // 机柜下的设备全部展示
@@ -210,8 +230,18 @@ export default class Cabinet {
         let SELECTED = target.object;
 
         if (SELECTED.name.includes("cabinet") && SELECTED.name.includes("door")) {
-            openCabinetDoor(SELECTED, (obj) => { 
+
+            // 先关别的门
+            this.closeOtherDoor()
+            // 再将自己保存进去
+            if (!this.parent.openDoorCabinets.includes(this)) {
+                this.parent.openDoorCabinets.push(this)
+            }
+
+            openCabinetDoor(SELECTED, (obj) => {
                 if (obj.doorState === 'close') {
+
+
                     // 机柜下的设备全部隐藏
                     this.serverDevices.forEach(serverDevice => {
                         serverDevice.hide()
@@ -234,10 +264,43 @@ export default class Cabinet {
         orbitControls.enabled = true;
     }
 
+    // 关闭其它机柜门
+    closeOtherDoor() {
+
+        if (!this.parent.openDoorCabinets.length) {
+            return
+        }
+
+        const cabinetEntity = this.parent.openDoorCabinets.pop()
+
+        if (cabinetEntity && cabinetEntity !== this) {
+            const door: any = cabinetEntity.cabinet.children.find(item => {
+                if (item.children && item.children.length) {
+                    return item.children[0].name.includes("cabinet") && item.children[0].name.includes("door")
+                }
+
+                return false
+            })
+
+            if (door.children[0].doorState === 'open') {
+
+                openCabinetDoor(door.children[0], () => {
+                    // 机柜下的设备全部隐藏
+                    cabinetEntity.serverDevices.forEach(serverDevice => {
+                        serverDevice.hide()
+                    })
+
+                    cabinetEntity.hideUbits()
+
+                })
+            }
+        }
+    }
+
     /**
      * 绑定单机机柜门的事件
      */
-    bindSingleClickCabinet () {
+    bindSingleClickCabinet() {
         this.listen.receive('click', target => {
             if (!target) {
                 return
@@ -253,11 +316,11 @@ export default class Cabinet {
         })
     }
 
-    sigleClickCabinet (target) {
+    sigleClickCabinet(target) {
         orbitControls.enabled = false;
         let SELECTED = target.object;
         SELECTED = findTopObj('cabinet', SELECTED)
-        
+
         /**
          * 需求；
          * 1. 点击机柜，弹出一个表格，展示当前机柜中所有设备的信息，信息包含两种，一种是已存在的设备U位，一种是空缺的U位
@@ -274,7 +337,7 @@ export default class Cabinet {
          */
         // console.log("singleClickCabinet: SELECTED.userData", SELECTED.userData)
         const serverDevices = this.serverDevices
-        
+
         if (vueModel.edited) {
             vueModel.$set(vueModel, 'recordDeviceUbitDialog', {
                 showOuterVisible: true,
@@ -283,7 +346,7 @@ export default class Cabinet {
                     prev.push(
                         current.serverDevice.userData
                     )
-    
+
                     return prev
                 }, [])
             })
@@ -295,7 +358,7 @@ export default class Cabinet {
                     prev.push(
                         current.serverDevice.userData
                     )
-    
+
                     return prev
                 }, [])
             })
@@ -338,27 +401,27 @@ export default class Cabinet {
         this.drawingCabinetDoors(item, emptyCabinet)
 
 
-        
+
         this.drawingUbit(item, emptyCabinet)
         this.drawingAlarmInfo(item, emptyCabinet)
         this.cabinet = emptyCabinet
         this.stepServerDevices(item, emptyCabinet)
         handleRotaion(item.rotation, emptyCabinet)
 
-        emptyCabinet.matrixAutoUpdate  = false;
-        emptyCabinet.updateMatrix();
+        // emptyCabinet.matrixAutoUpdate  = false;
+        // emptyCabinet.updateMatrix();d
 
-        console.log('emptyCabinet', emptyCabinet)
+        // console.log('emptyCabinet', emptyCabinet)
         // this.cabinet.visible = false
 
     }
 
-    hideUbits () {
+    hideUbits() {
         this.ubits.forEach(ubit => {
             ubit.visible = false
         })
     }
-    showUbits () {
+    showUbits() {
         this.ubits.forEach(ubit => {
             ubit.visible = true
         })
@@ -468,6 +531,7 @@ export default class Cabinet {
         //     return
         // }
 
+        // const ubitGroup = this.drawingUbitFn2(6, 6, 6, cabinetTotalU)
         const ubitGroup = this.drawingUbitFn(6, 6, 6, cabinetTotalU)
         const [x, y, z] = [
             sizeWidth / 2,
@@ -487,7 +551,7 @@ export default class Cabinet {
         const ubitGroup4 = ubitGroup.clone()
         ubitGroup4.position.set(-40, - cabinetTotalU * 6 / 2 + 3, 2)
 
-        
+
 
         emptyCabinet.add(ubitGroup)
         emptyCabinet.add(ubitGroup2)
@@ -496,7 +560,7 @@ export default class Cabinet {
 
         this.ubits.push(ubitGroup, ubitGroup2, ubitGroup3, ubitGroup4)
         this.ubits.forEach(ubit => {
-            ubit.matrixAutoUpdate  = false;
+            ubit.matrixAutoUpdate = false;
             ubit.updateMatrix();
         })
         this.hideUbits()
@@ -543,7 +607,76 @@ export default class Cabinet {
         return ubitGroup
 
         function ganerateTempate() {
-            let geometry = new THREE.PlaneGeometry(width, height); //矩形平面
+            let geometry = new THREE.PlaneGeometry(width, height); // 矩形平面
+            let textureLoader = new THREE.TextureLoader();
+            const texture: THREE.Texture = textureLoader.load(BASE_PATH + '5EDB1B5608A4A1A95FB81C93F960CDA3.jpg')
+            texture.needsUpdate = true
+
+            let material = new THREE.MeshLambertMaterial({
+                // color: 0x0000ff,
+                // 设置纹理贴图：Texture对象作为材质map属性的属性值
+                map: texture,
+                side: THREE.FrontSide //THREE.DoubleSide
+            }); //材质对象Material
+            let mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+
+            const point = [
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(xSpace, 0),
+                new THREE.Vector2(xSpace, ySpace),
+                new THREE.Vector2(0, ySpace),
+            ]
+            geometry.faceVertexUvs[0][0] = [point[0], point[1], point[3]]
+            geometry.faceVertexUvs[0][1] = [point[1], point[2], point[3]]
+            mesh.rotation.z = 0.5 * Math.PI
+
+            return mesh
+        }
+
+        // 简单处理一下小数相加时的精度丢失问题
+        function calcAdd(num1, num2) {
+            return (num1 * 10 + num2 * 10) / 10
+        }
+    }
+
+    /**
+     * 单个平面绘制U位 （失败）
+     */
+    drawingUbitFn2(width, height, yAxisSpace, count) {
+        const xSpace = 0.09
+        const ySpace = 0.1
+
+        const meshTemp = ganerateTempate()
+        meshTemp.position.y = -500
+
+        let ubitGroup = new THREE.Group()
+        ubitGroup.name = '1-60个U位渲染'
+        let ubitSet = []
+        const meshObj = meshTemp;//.clone()
+        for (let index = 0; index < 6; index++) {
+            for (let subIndex = 0; subIndex < 10; subIndex++) {
+                
+                let point2 = [
+                    new THREE.Vector2(calcAdd(0, index * xSpace), calcAdd(0, ySpace * subIndex)),
+                    new THREE.Vector2(calcAdd(xSpace, index * xSpace), calcAdd(0, ySpace * subIndex)),
+                    new THREE.Vector2(calcAdd(xSpace, index * xSpace), calcAdd(ySpace, ySpace * subIndex)),
+                    new THREE.Vector2(calcAdd(0, index * xSpace), calcAdd(ySpace, ySpace * subIndex)),
+                ]
+
+                // meshObj.geometry = new THREE.PlaneGeometry(width, height);
+                meshObj.geometry.faceVertexUvs[0][index * 10 + subIndex * 2] = [point2[0], point2[1], point2[3]]
+                meshObj.geometry.faceVertexUvs[0][index * 10 +  subIndex * 2 + 1] = [point2[1], point2[2], point2[3]]
+                // meshObj.position.y = 0 + calcAdd((yAxisSpace * 10 * index), (yAxisSpace * subIndex))
+                ubitSet.push(meshObj)
+            }
+        }
+
+
+        
+        return meshObj
+
+        function ganerateTempate() {
+            let geometry = new THREE.PlaneGeometry(width, height * count); // 矩形平面
             let textureLoader = new THREE.TextureLoader();
             const texture: THREE.Texture = textureLoader.load(BASE_PATH + '5EDB1B5608A4A1A95FB81C93F960CDA3.jpg')
             texture.needsUpdate = true
@@ -720,8 +853,8 @@ export default class Cabinet {
         if (isExists(childrens) && Array.isArray(childrens)) {
             let equipmentUUID = []
             const { x, y, z, rotation = null } = item
+
             childrens.forEach((serverDeviceCfg, index) => {
-                debugger
                 serverDeviceCfg.x = x
                 // serverDeviceCfg.y = y - sizeHeight / 2 - sizeThick / 2 + floorHeight / 2  + serverDeviceCfg.y * 2
                 serverDeviceCfg.y = serverDeviceCfg.y + sizeThick + serverDeviceCfg.height / 2;
@@ -735,7 +868,14 @@ export default class Cabinet {
                     equipmentUUID
                 }
 
-                const serverDevice1 = new ServerDevice(cfg, this)
+                let serverDevice1 = null
+
+                // if (this.serverDevices.length > 0) {
+                //     serverDevice1 = new ServerDevice(cfg, this, this.serverDevices[0].serverDevice)
+                // } else {
+                serverDevice1 = new ServerDevice(cfg, this)
+                // }
+
                 this.serverDevices.push(serverDevice1)
 
                 equipmentUUID.push(serverDevice1.serviceUUID)
@@ -746,10 +886,24 @@ export default class Cabinet {
     }
 
     // 重置当前机柜的位置
-    resetCabinet () {}
+    resetCabinet() { }
 
     // 重置当前机柜下，所有设备的位置
-    resetServerDevice () {}
+    resetServerDevice() {
+        /**
+         * 1. 获取当前机柜的位置
+         * 2. 遍历当前机柜中所有的设备，动态的修改它们的位置
+         * 3. 同时更新它们的错误标识的位置
+         */
+        const { x, y, z } = this.cabinet.position
+        this.serverDevices.forEach(device => {
+            device.serverDevice.position.x = x
+            device.serverDevice.position.z = z
+
+            device.resetErrorFlag()
+        })
+
+    }
 
     show() {
         // 可见性设置

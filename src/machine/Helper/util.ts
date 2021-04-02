@@ -265,10 +265,11 @@ export function setMaterialColor(_objname, _color) {
     } else {
         _obj = _objname
     }
-
+    
     if (isExists(_obj.material.emissive)) {
         _obj.material.emissive.setHex(_color);
     } else if (isExists(_obj.material.materials)) {
+
         if (_obj.material.materials.length > 0) {
 
             _obj.material.materials.forEach((obj) => {
@@ -305,23 +306,18 @@ export function addIdentification(_objname, _obj) {
         _fobj = findObject(_objname);
     } else {
         _fobj = _objname
-    } 
+    }
 
     if (!identification[_obj.imgurl]) {
-        const loader = new THREE.TextureLoader();
-        loader.load(_obj.imgurl, function (texture) { 
-            texture.needsUpdate = true
-
-            var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-            var sprite = new THREE.Sprite(spriteMaterial);
-            initIdentification(sprite)
-            // 做一下缓存
-            identification[_obj.imgurl] = sprite.clone()
-        }, undefined, function (e) { 
-            console.error(e)
-        });
+        const texture = new THREE.TextureLoader().load(_obj.imgurl)
+        // texture.needsUpdate = true
+        var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        var sprite = new THREE.Sprite(spriteMaterial);
+        initIdentification(sprite)
+        // 做一下缓存
+        identification[_obj.imgurl] = sprite.clone()
     } else {
-        const sprite = identification[_obj.imgurl]
+        const sprite = identification[_obj.imgurl].clone()
         initIdentification(sprite)
     }
 
@@ -334,14 +330,15 @@ export function addIdentification(_objname, _obj) {
         sprite.position.y = _fobj.position.y + _obj.position.y;
         sprite.position.z = _fobj.position.z + _obj.position.z;
         if (isExists(_obj.size)) {
-            sprite.scale.set(_obj.size.x, _obj.size.y, _obj.size.z);
+            sprite.scale.set(_obj.size.x || 1, _obj.size.y || 1, _obj.size.z || 1);
         } else {
             sprite.scale.set(1, 1, 1);
         }
-
-        sprite.matrixAutoUpdate  = false;
-        sprite.updateMatrix();
+        
+        // console.log('sprite', sprite)
+        // sprite.matrixAutoUpdate  = false;
+        // sprite.updateMatrix();
         addObject(sprite);
     }
-   
+
 }

@@ -1,11 +1,14 @@
 'use strict'
 const path = require('path')
+// const StatsPlugin = require('stats-webpack-plugin');
+
 
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = 'aiyou-3d-visual' // page title
+const name = '3d-visual' // page title
+// const name = 'singleDemo' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
@@ -24,6 +27,7 @@ module.exports = {
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
   publicPath: '/',
+  // publicPath: "//localhost:3000/",
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
@@ -42,6 +46,9 @@ module.exports = {
   // webpack-dev-server 相关配置
   devServer: {
     port: port,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
     open: true,
     overlay: {
       warnings: false,
@@ -68,7 +75,28 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
-    }
+    },
+    output: {
+        library: '3d-visual',
+        libraryTarget: 'umd',
+        // jsonpFunction: `webpackJsonp_${name}`,
+    },
+    // output: {
+    //   library: "singleVue",
+    //   libraryTarget: "window",
+    // },
+    // plugins: [
+    //   new StatsPlugin('manifest.json', {
+    //     chunkModules: false,
+    //     entrypoints: true,
+    //     source: false,
+    //     chunks: false,
+    //     modules: false,
+    //     assets: false,
+    //     children: false,
+    //     exclude: [/node_modules/]
+    //   }),
+    // ]
   },
   chainWebpack(config) {
     // set ts
@@ -163,7 +191,7 @@ module.exports = {
   },
   css: {
     // 是否使用css分离插件 ExtractTextPlugin
-    extract: true,
+    extract: false,
     // 开启 CSS source maps?
     sourceMap: false,
     // 启用 CSS modules for all css / pre-processor files.

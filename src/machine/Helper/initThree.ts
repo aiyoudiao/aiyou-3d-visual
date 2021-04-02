@@ -19,6 +19,8 @@ import Vue from 'vue'
 
 import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
+import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2'
@@ -72,8 +74,17 @@ let tipTimer: any = null
 let tooltipBG = '#ACDEFE'
 let lastEvent: any = null
 
+// 编辑机房 
+// TODO 使用平移控制器和拖拽控制，实现机房的编辑操纵
+export let transformControls: TransformControls
+export let dragControls: DragControls
+
 export const ops = {
     proportionValue: 1
+}
+
+interface Window {
+    __webpack_public_path__: any
 }
 
 export default function initThree(props: { domID, dataSet, eventList, sourcePath, vueModel, proportionValue?: number }) {
@@ -81,7 +92,7 @@ export default function initThree(props: { domID, dataSet, eventList, sourcePath
     // 画布的容器DOM
     domElement = document.getElementById(props.domID)
     // 资源根路径
-    BASE_PATH = props.sourcePath || `./static/three.js/images/`
+    BASE_PATH = props.sourcePath || `/static/three.js/images/` 
     // 数据集
     dataSet = props.dataSet
     // 事件列表
@@ -122,6 +133,7 @@ function init() {
     initScene()
     initCamera()
     initRenderer()
+    initResize()
     initLight()
     initHelpTool()
     initData()
@@ -167,6 +179,7 @@ function initRenderer() {
         alpha: true,
         antialias: true
     })
+    renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(domElement.offsetWidth, domElement.offsetHeight)
     domElement.appendChild(renderer.domElement)
 
@@ -207,7 +220,7 @@ function initRenderer() {
     compose.addPass(FxaaPass);
 
     function createFxaaPass() {
-        let FxaaPass:any = new ShaderPass(FXAAShader);
+        let FxaaPass: any = new ShaderPass(FXAAShader);
         // FxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
 
         const pixelRatio = renderer.getPixelRatio();
@@ -218,6 +231,18 @@ function initRenderer() {
         FxaaPass.renderToScreen = true;
         return FxaaPass;
     }
+}
+
+function initResize() {
+    window.addEventListener('resize', () => {
+
+        renderer.setPixelRatio(window.devicePixelRatio)
+        renderer.setSize(domElement.offsetWidth, domElement.offsetHeight)
+
+        // 重置相机投影相关的参数
+        camera.aspect = domElement.offsetWidth / domElement.offsetHeight
+        camera.updateProjectionMatrix()
+    })
 }
 
 function initLight() {
@@ -292,11 +317,113 @@ function initHelpTool() {
 }
 
 function initControl() {
-    orbitControls = new OrbitControls(camera, domElement)
-    // orbitControls.addEventListener('change', function () {
-    //     console.log('我变了')
-    // })
-    orbitControls.update()
+
+    /**
+     * 1. 初始化轨迹控制器
+     * 2. 初始化拖拽控制器
+     */
+
+    initOrbitControls()
+    // initTransformControls()
+    initDragControls()
+
+    // 初始化轨迹控制器
+    function initOrbitControls() {
+        orbitControls = new OrbitControls(camera, domElement)
+        // orbitControls.addEventListener('change', function () {
+        //     console.log('我变了')
+        // })
+        orbitControls.rotateSpeed = 0.1; //角度变换速度
+        orbitControls.zoomSpeed = 5; //缩放速度
+        orbitControls.panSpeed = 1; //平移速度
+
+        orbitControls.enableZoom = true; //是否允许缩放
+        orbitControls.enablePan = true; //是否允许移动
+        orbitControls.enableRotate = true; //是否允许旋转
+
+        orbitControls.enableDamping = true; //是否允许缓冲效果
+        orbitControls.dampingFactor = 0.1; //缓冲大小
+
+        orbitControls.autoRotate = false; //自动旋转
+        orbitControls.autoRotateSpeed = 0.1; //自动旋转速度
+
+        orbitControls.keyPanSpeed = 5; //键盘移动速度
+        orbitControls.keys = {
+            LEFT: 37, //left arrow
+            UP: 38, // up arrow
+            RIGHT: 39, // right arrow
+            BOTTOM: 40 // down arrow
+        };
+        orbitControls.enabled = true;
+
+
+        orbitControls.update()
+    }
+
+    // !!NOTE 初始化转换控制器（转换控制器被使用后，可能会影响投影对象的使用，所以要及时销毁，每次要使用的时候，再创建新的即可）
+    function initTransformControls() {
+        // 支持转换功能的控制器：平移、旋转、放大缩小
+        transformControls = new TransformControls(camera, domElement)
+        transformControls.size = 1
+        transformControls.showY = false
+        scene.add(transformControls)
+
+        transformControls.addEventListener('change', function (event) {
+            // TODO 触发显示坐标的操作
+        })
+
+        transformControls.addEventListener('mouseDown', function (event) {
+            //
+            // dragControls.enabled = vueModel.editMachineRoom
+            orbitControls.enabled = false;
+        })
+
+        transformControls.addEventListener('mouseUp', function (event) {
+            // 初始化某个机柜中的设备及相关的状态
+            // console.log('event', event.target.object)
+            const machineRoom: any = window['machineRoom']
+            const cabinet = machineRoom.cabinets.find((item) => {
+                return item.cabinet === event.target.object
+            })
+
+            cabinet && cabinet.resetServerDevice()
+
+            transformControls.detach()
+            dragControls.enabled = true
+            orbitControls.enabled = true;
+            scene.remove(transformControls)
+            transformControls.dispose()
+            transformControls = null
+
+        })
+
+        transformControls.addEventListener('objectchange', function (event) {
+            // 
+        })
+    }
+
+    // 初始化拖拽控制器
+    function initDragControls() {
+
+        // 支持拖拽功能的控制器
+        dragControls = new DragControls([], camera, domElement)
+        dragControls.enabled = true // vueModel.editMachineRoom
+        dragControls.addEventListener('dragstart', function (event) {
+            // dragControls.enabled = vueModel.editMachineRoom
+            if (vueModel.editMachineRoom) {
+                (!transformControls) && initTransformControls();
+                transformControls.attach(event.object.parent)
+            }
+
+            dragControls.enabled = false
+        })
+
+        dragControls.addEventListener('drag', function (event) {
+        })
+        dragControls.addEventListener('dragend', function (event) {
+        })
+    }
+
 }
 
 function render(time?) {
@@ -306,13 +433,13 @@ function render(time?) {
     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
         TWEEN.update(time);
     }
-    
+
     updatePath()
     renderer.render(scene, camera)
     orbitControls.update()
     // stats.update(delta)
     stats.update(time)
-    
+
     requestAnimationFrame(render)
 }
 
@@ -323,7 +450,7 @@ function render(time?) {
 //     if (TWEEN != null && typeof (TWEEN) != 'undefined') {
 //         TWEEN.update(time);
 //     }
-    
+
 //     updatePath()
 //     if (outlinePass.selectedObjects[0]) {
 //         compose.render(delta)
@@ -334,7 +461,7 @@ function render(time?) {
 //     orbitControls.update()
 //     // stats.update(delta)
 //     stats.update(delta)
-    
+
 //     requestAnimationFrame(render)
 // }
 

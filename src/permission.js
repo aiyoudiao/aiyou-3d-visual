@@ -27,6 +27,7 @@ router.beforeEach(async(to, from, next) => {
  */
 
 router.afterEach(() => {
+  // console.log('arguments', arguments)
   NProgress.done() // 结束Progress
   setTimeout(() => {
     const browserHeaderTitle = store.getters.browserHeaderTitle

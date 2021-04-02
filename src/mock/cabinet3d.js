@@ -107,7 +107,7 @@ List['machine-room'].rows = Array(count).fill(1).map(item => {
     })
 })
 
-const n = 3
+const n = 2
 const min = Math.pow(n - 1, 2) * (3 * 7)
 const max = Math.pow(n, 2) * (3 * 7) 
 
@@ -142,7 +142,7 @@ const cabinetAndDevice = {
             return {
                 cabinetID: i,
                 cabinetName: i + '号机柜',
-                cabinetTotalU: Mock.Random.integer(28,60),
+                cabinetTotalU: 42,// Mock.Random.integer(28,60),
                 dataCenterName: Mock.Random.title(1, 3) + '数据中心',
                 machineRoomName: '机房' + Mock.Random.natural(3, 5) + '号',
                 cabinetRate: Mock.Random.float(0, 0, 1,2),
@@ -213,7 +213,7 @@ cabinetAndDevice.cabinets.list.forEach(cabinet => {
     const serverDeviceList = Array(serverDeviceNum).fill(1).map(() => {
     // const serverDeviceList = Array(serverDeviceNum - viisualNum).fill(1).map(() => {
         startU = startU || Mock.Random.integer(1, 2)
-        endU =  startU + Mock.Random.integer(1, 2)
+        endU =  startU + Mock.Random.integer(1, 3)
 
         const item = {
             deviceID: Mock.Random.id(),

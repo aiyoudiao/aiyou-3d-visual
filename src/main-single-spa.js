@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import singleSpaVue from "single-spa-vue";
 
 // import VCharts from 'v-charts'
 
@@ -60,46 +61,28 @@ if (localStorage.getItem('themeValue')) {
 }
 Vue.config.productionTip = false
 
-// new Vue({
-//   el: '#app',
-//   router,
-//   store,
-//   // template: '<App/>',
-//   // components: { App }
-//   render: h => h(App)
-// })
 
+const vueOptions = {
+  el: "#vue",
+  router,
+  store,
+  render: h => h(App)
+};
 
-let instance = null
-function render(props = {}) {
-  let {container} = props
-  instance = new Vue({
-    router,
-    store,
-    render: h => h(App)
-  }).$mount(container ? container.querySelector('#app'): '#app') // ! 还是挂载到自己的html中，基座会拿到这个挂载后的html，将其插入进去
-  // }).$mount(container ? container.querySelector('#app'): '#app') // ! 还是挂载到自己的html中，基座会拿到这个挂载后的html，将其插入进去
+// 判断当前页面使用singleSpa应用,不是就渲染
+if (!window.singleSpaNavigate) {
+  delete vueOptions.el;
+  new Vue(vueOptions).$mount('#vue');
 }
 
-if (window.__POWERED_BY_QIANKUN__) {
-  //!修改webpack中的publicPath运行时路径
-  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__
-}
+// singleSpaVue包装一个vue微前端服务对象
+const vueLifecycles = singleSpaVue({
+  Vue,
+  appOptions: vueOptions
+});
 
-// !如果乾坤不存在，那么就代表这个项目是独立运行的
-if (!window.__POWERED_BY_QIANKUN__) {
-  render()
-}
+export const bootstrap = vueLifecycles.bootstrap; // 启动时
+export const mount = vueLifecycles.mount; // 挂载时
+export const unmount = vueLifecycles.unmount; // 卸载时
 
-// 子组件的协议就设置好了
-export async function bootstrap(props) { }
-export async function mount(props) { 
-  console.log('qiankun-vue', props)
-  render(props)
-}
-export async function unmount(props) {
-  instance.$destroy();
-  instance.$el.innerHTML = '';
-  instance = null;
-  router = null;
-}
+export default vueLifecycles;

@@ -10,6 +10,7 @@ export default class MachineRoom {
     name: string = '机房'
     parent?: DataCenter
     cabinets: Array<Cabinet> = []
+    openDoorCabinets: Array<Cabinet> = []
 
     constructor(cfgs, dataCenter?: DataCenter) {
         this.parent = dataCenter
@@ -42,14 +43,14 @@ export default class MachineRoom {
             }
 
             if (item.objType === 'emptyCabinet') {
-                // let cabinet1 = null
-                // if (this.cabinets.length > 0) {
-                //     cabinet1 = new Cabinet(item, this, this.cabinets[0].cabinet)
-                // } else {
-                //     cabinet1 = new Cabinet(item, this)
-                // }
+                let cabinet1 = null
+                if (this.cabinets.length > 0) {
+                    cabinet1 = new Cabinet(item, this, this.cabinets[0].cabinet)
+                } else {
+                    cabinet1 = new Cabinet(item, this)
+                }
 
-                let cabinet1 = new Cabinet(item, this)
+                // let cabinet1 = new Cabinet(item, this)
                 
                 this.cabinets.push(cabinet1)
                 addObject(cabinet1.cabinet, 'scene')
@@ -140,8 +141,8 @@ export default class MachineRoom {
                     // }
                 });
             }
-            // cube.matrixAutoUpdate  = false;
-            // cube.updateMatrix();
+            cube.matrixAutoUpdate  = false;
+            cube.updateMatrix();
             addObject(cube, 'scene')
         });
     }

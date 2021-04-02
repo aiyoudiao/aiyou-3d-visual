@@ -1,7 +1,7 @@
 import { BoxHelper, CircleBufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshPhongMaterial, PlaneGeometry, TextureLoader, Vector3 } from "three";
 import { addBox, addLine, addLinePath, addNurbs, addSprite, addTemPlane, dynamicPath, stopDynamicPath } from "./action";
-import { BASE_PATH, cabinetSpaceList, camera, dataSet, makeWaterList, orbitControls, scene, ops } from "./initThree"
-import { addIdentification, delSenceObject, makeDynamicTextSprite, setMaterialColor } from "./util";
+import { BASE_PATH, cabinetSpaceList, camera, dataSet, makeWaterList, orbitControls, scene, ops, dragControls } from "./initThree"
+import { addIdentification, delSenceObject, findObject, makeDynamicTextSprite, setMaterialColor } from "./util";
 
 
 let beforeServerDevice
@@ -764,4 +764,29 @@ export const showFlag = (show, cabinetList) => {
         delSenceObject(vtreeanme, false);
     }
 
+}
+
+export const editMachineRoom = (show, cabinetList) => {
+    const objs = dragControls.getObjects()
+    if (show) {
+        if (!objs.length) {
+            cabinetList.forEach(cabinetName => {
+                const obj = findObject(cabinetName)
+                if (obj && obj.children) {
+                    obj.children.forEach(mesh => {
+                        if (mesh.isMesh) {
+                            objs.push(mesh)
+                        }
+                    })
+                }
+
+            })
+
+            console.log('objs:', objs)
+        }
+    } else {
+        while (objs.length) {
+            objs.pop()
+        }
+    }
 }

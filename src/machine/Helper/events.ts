@@ -27,8 +27,8 @@ export function onDocumentMouseDown(event) {
     if (clickTimer) {
         clearTimeout(clickTimer)
     }
-    let target = getTarget(event)
     clickTimer = setTimeout(() => {
+        let target = getTarget(event)
         switch (clickCount) {
             case 1: {
                 listen.broadcasting('click', target, event)
@@ -59,8 +59,9 @@ export function onDocumentMouseMove(event) {
     if (hoverTimer) {
         clearTimeout(hoverTimer)
     }
-    let target = getTarget(event)
+    
     hoverTimer = setTimeout(() => {
+        let target = getTarget(event)
         listen.broadcasting('hover', target, event)
-    }, 16.8) // 在5帧内处理鼠标悬浮操作
+    }, 16.8) // 在50帧内处理鼠标悬浮操作
 }

@@ -82,11 +82,15 @@ export const constantRouterMap = [
   //     }
   //   ]
   // },
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/cabinet3d', hidden: true }
+  { path: '*', redirect: '/', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 export default new Router({
   // mode: 'history', //后端支持可开
+  base: window.__POWERED_BY_QIANKUN__ ? '/3d-visual/' : '/',
+  // base: '/vue',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })

@@ -337,8 +337,8 @@ export default class Cabinet {
         this.stepServerDevices(item, emptyCabinet)
         handleRotaion(item.rotation, emptyCabinet)
 
-        emptyCabinet.matrixAutoUpdate = false;
-        emptyCabinet.updateMatrix();
+        // emptyCabinet.matrixAutoUpdate = false;
+        // emptyCabinet.updateMatrix();
         // this.cabinet.visible = false
 
     }
@@ -485,10 +485,10 @@ export default class Cabinet {
         emptyCabinet.add(ubitGroup4)
 
         this.ubits.push(ubitGroup, ubitGroup2, ubitGroup3, ubitGroup4)
-        this.ubits.forEach(ubit => {
-            ubit.matrixAutoUpdate = false;
-            ubit.updateMatrix();
-        })
+        // this.ubits.forEach(ubit => {
+        //     ubit.matrixAutoUpdate = false;
+        //     ubit.updateMatrix();
+        // })
         this.hideUbits()
         addObject(ubitGroup, 'object')
         addObject(ubitGroup2, 'object')

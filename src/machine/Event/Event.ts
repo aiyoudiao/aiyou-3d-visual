@@ -66,6 +66,7 @@ export class EventHandler1 {
         // FIX 这里有一个很耗费性能的bug，悬浮的事件太多太多了
         // console.log('this.eventDictionary[eventType]', this.eventDictionary[eventType])
         if (isExists(this.eventDictionary[eventType])) {
+            // debugger
             this.eventDictionary[eventType].forEach(eventCallback => eventCallback(eventTarget, eventArgs))
         }
     }
